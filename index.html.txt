@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 큐챔스 X ZOWIE 게이밍 퀴즈</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* 변수 선언 - 기존 레드/다크 테마 유지 */
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: rgba(26, 26, 36, 0.65);
+            --border-color: rgba(186, 12, 47, 0.25);
+            --primary-color: #BA0C2F; /* 조위 레드 */
+            --primary-hover: #900822;
+            --text-main: #ffffff;
+            --text-muted: #aaaaaa;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(186, 12, 47, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(28, 3, 225, 0.08) 0%, transparent 45%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* 메인 컨테이너 - 글래스모피즘 효과 */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 헤더 영역 */
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quiz-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .quiz-header h1 span {
+            color: var(--primary-color);
+        }
+
+        /* 진행도 바 */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 33.3%;
+            background: linear-gradient(90deg, var(--primary-color), #ff3355);
+            transition: width 0.4s ease;
+        }
+
+        /* 문항 카운터 */
+        .question-number {
+            font-size: 14px;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        /* 질문 텍스트 */
+        .question-text {
+            font-size: 17px;
+            line-height: 1.6;
+            font-weight: 500;
+            margin-bottom: 30px;
+            word-break: keep-all;
+        }
+
+        /* 보기 옵션 그룹 */
+        .options-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* 보기 버튼 스타일 */
+        .option-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px 20px;
+            text-align: left;
+            color: var(--text-main);
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            word-break: keep-all;
+        }
+
+        .option-btn:hover {
+            background: rgba(186, 12, 47, 0.1);
+            border-color: rgba(186, 12, 47, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* 결과 화면 스타일 */
+        .result-view {
+            display: none;
+            text-align: center;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .score-display {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+        }
+
+        /* 결과 상세 해설 리스트 */
+        .review-section {
+            text-align: left;
+            margin-top: 35px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 25px;
+        }
+
+        .review-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-muted);
+        }
+
+        .review-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .review-q {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .review-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .status-correct {
+            background: rgba(40, 167, 69, 0.15);
+            color: var(--success-color);
+        }
+
+        .status-incorrect {
+            background: rgba(220, 53, 69, 0.15);
+            color: var(--error-color);
+        }
+
+        .review-ans {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .review-ans strong {
+            color: var(--text-main);
+        }
+
+        .review-rationale {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #afb1b6;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+
+        /* 다시하기 버튼 */
+        .btn-restart {
+            margin-top: 25px;
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-restart:hover {
+            background: var(--primary-hover);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            .question-text {
+                font-size: 15px;
+            }
+            .option-btn {
+                font-size: 14px;
+                padding: 14px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="quiz-view">
+            <div class="quiz-header">
+                <h1>2026 큐챔스 <span>X ZOWIE</span> 게이밍 퀴즈</h1>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+
+            <div class="question-number" id="question-number">Question 1 / 3</div>
+            <div class="question-text" id="question-text">질문 텍스트 로딩 중...</div>
+
+            <div class="options-group" id="options-group">
+                </div>
+        </div>
+
+        <div id="result-view" class="result-view">
+            <div class="quiz-header">
+                <h1>QUIZ SCORE</h1>
+            </div>
+            <div class="result-title">테스트 완료!</div>
+            <div class="score-display" id="score-display">0 / 3</div>
+            <p style="color: var(--text-muted); font-size: 14px; word-break: keep-all;">
+                현장 부스 운영진에게 결과를 인증하고 다음 이벤트 안내를 받으세요!
+            </p>
+
+            <div class="review-section" id="review-section">
+                <div class="review-title">리뷰 및 상세 해설</div>
+                <div id="review-list"></div>
+            </div>
+
+            <button class="btn-restart" onclick="restartQuiz()">다시 도전하기</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. 제공해주신 수파베이스(Supabase) 최신 프로젝트 접속 정보 완전 연동
+        const SUPABASE_URL = "https://qaiujvaydoowubvnvace.supabase.co"; 
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhaXVqdmF5ZG9vd3Vidm52YWNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NjY4ODcsImV4cCI6MjA5OTI0Mjg4N30.28DGW23cGI3ltvhRNhvvLk6SyJzeu2Xct_J81HCA1j0";
+        
+        // 인스턴스 초기화
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 2. 퀴즈 문항 데이터 구성
+        const quizData = [
+            {
+                q: "이번 '2026 큐챔스' 오프라인 본선이 치러지는 장소이자, 벤큐 조위(ZOWIE)의 프로급 프리미엄 게이밍 기어 라인업을 직접 체험할 수 있도록 구축된 이 전용 좌석 공간의 이름은 무엇일까요?",
+                options: [
+                    { text: "① 벤큐 랜드", isCorrect: false, rationale: "벤큐 이름은 들어가나 프리미엄 라인 전용 좌석 구역의 공식 명칭은 아닙니다." },
+                    { text: "② 조위존 (ZOWIE ZONE)", isCorrect: true, rationale: "정답입니다! 프로선수 사양의 벤큐 조위 장비가 구성된 전용 프리미엄 체험 공간입니다." },
+                    { text: "③ 큐브 스튜디오", isCorrect: false, rationale: "대회 중계 및 방송 촬영 목적의 메인 무대 컨셉으로 전용 좌석 명칭과는 다릅니다." },
+                    { text: "④ 옵티мум 스페이스", isCorrect: false, rationale: "행사장 PC카페의 전반적인 공간 명칭에 가까우며 조위 전용 특화 구역명이 아닙니다." }
+                ]
+            },
+            {
+                q: "조위(ZOWIE) 게이밍 모니터에 탑재된 독점 기술로, 화면이 격렬하게 전환되는 상황에서도 잔상을 완벽하게 제거하여, 눈으로 볼 때 이미지가 안정적으로 보이도록 돕는 이 기술의 이름은 무엇일까요?",
+                options: [
+                    { text: "① DyAc™ (다이악)", isCorrect: true, rationale: "정답입니다! Dynamic Accuracy의 약자로 FPS 게임 등 격렬한 움직임 속 잔상을 획기적으로 줄이는 조위 독점 기술입니다." },
+                    { text: "② Acrobatic", isCorrect: false, rationale: "역동성을 연상시키는 일반 단어일 뿐 조위 디스플레이 고유 기술명이 아닙니다." },
+                    { text: "③ Commander", isCorrect: false, rationale: "셋업 제어 프로그램 이름 스타일이며 화면 잔상을 완벽히 제거하는 주간 하드웨어 기술이 아닙니다." },
+                    { text: "④ Line Breaker", isCorrect: false, rationale: "잔상 제거 제어 매커니즘과는 관련이 없는 임의의 가짜 명칭입니다." }
+                ]
+            },
+            {
+                q: "현재 이용 중이신 조위존 2인실에 장착되어 있는 장비로, 최고급 오디오 칩셋을 통해 일반 PC와는 차원이 다른 풍부하고 디테일한 하이엔드 입체 사운드를 만끽할 수 있도록 돕는 사운드카드의 명칭은 무엇일까요?",
+                options: [
+                    { text: "① 사운드 블라스터 (Sound Blaster)", isCorrect: true, rationale: "정답입니다! 최고급 오디오 칩셋을 기반으로 깊이감 있고 선명한 공간 입체 오디오를 제공하는 고성능 외장형 사운드카드 장비입니다." },
+                    { text: "② 조위 오디오", isCorrect: false, rationale: "브랜드와 어울려 보이나 실제 매치된 고급 사운드 장비 하드웨어의 브랜드명이 아닙니다." },
+                    { text: "③ 큐챔스 볼륨", isCorrect: false, rationale: "이번 2026 오프라인 본선 이벤트 타이틀을 차용한 오답 문항입니다." },
+                    { text: "④ 벤큐 사운드", isCorrect: false, rationale: "모니터 내장 스피커 기술 등을 포괄할 순 있으나 프리미엄 룸에 내장된 최고급 특화 사운드카드명이 아닙니다." }
+                ]
+            }
+        ];
+
+        let currentIdx = 0;
+        let score = 0;
+        let userAnswers = []; 
+
+        // 3. 퀴즈 렌더링 함수
+        function renderQuestion() {
+            const currentQuiz = quizData[currentIdx];
+            
+            document.getElementById('question-number').innerText = `Question ${currentIdx + 1} / ${quizData.length}`;
+            const progressPercent = ((currentIdx + 1) / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            
+            document.getElementById('question-text').innerText = currentQuiz.q;
+            
+            const optionsGroup = document.getElementById('options-group');
+            optionsGroup.innerHTML = '';
+            
+            currentQuiz.options.forEach((opt) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.innerText = opt.text;
+                button.onclick = () => handleSelectOption(opt);
+                optionsGroup.appendChild(button);
+            });
+        }
+
+        // 4. 보기 선택 처리
+        function handleSelectOption(selectedOpt) {
+            if (selectedOpt.isCorrect) {
+                score++;
+            }
+            userAnswers.push(selectedOpt);
+
+            if (currentIdx < quizData.length - 1) {
+                currentIdx++;
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // 5. 결과 화면 출력 및 데이터베이스 전송
+        function showResults() {
+            document.getElementById('quiz-view').style.display = 'none';
+            document.getElementById('result-view').style.display = 'block';
+            document.getElementById('score-display').innerText = `${score} / ${quizData.length}`;
+
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = '';
+
+            quizData.forEach((quiz, i) => {
+                const userAns = userAnswers[i];
+                const correctAns = quiz.options.find(o => o.isCorrect);
+
+                const card = document.createElement('div');
+                card.className = 'review-card';
+
+                card.innerHTML = `
+                    <div class="review-q"><strong>Q${i+1}.</strong> ${quiz.q}</div>
+                    <span class="review-status ${userAns.isCorrect ? 'status-correct' : 'status-incorrect'}">
+                        ${userAns.isCorrect ? '정답' : '오답'}
+                    </span>
+                    <div class="review-ans">선택한 답변: <strong>${userAns.text}</strong></div>
+                    ${!userAns.isCorrect ? `<div class="review-ans" style="color:var(--success-color)">올바른 정답: <strong>${correctAns.text}</strong></div>` : ''}
+                    <div class="review-rationale">💡 <strong>해설:</strong> ${correctAns.rationale}</div>
+                `;
+                reviewList.appendChild(card);
+            });
+
+            // 데이터 전송
+            sendDataToSupabase();
+        }
+
+        // 6. Supabase 실시간 적재 로직
+        async function sendDataToSupabase() {
+            if (!_supabase) return;
+            
+            try {
+                // 수파베이스 테이블 구조에 안전하게 insert
+                const { data, error } = await _supabase
+                    .from('quiz_results') 
+                    .insert([
+                        { 
+                            score: score, 
+                            total_questions: quizData.length,
+                            q1_answer: userAnswers[0]?.text,
+                            q2_answer: userAnswers[1]?.text,
+                            q3_answer: userAnswers[2]?.text,
+                            created_at: new Date()
+                        }
+                    ]);
+                
+                if (error) throw error;
+                console.log("데이터 백엔드 저장 완료");
+            } catch (err) {
+                console.error("저장 실패:", err.message);
+            }
+        }
+
+        // 7. 다시하기 초기화
+        function restartQuiz() {
+            currentIdx = 0;
+            score = 0;
+            userAnswers = [];
+            document.getElementById('result-view').style.display = 'none';
+            document.getElementById('quiz-view').style.display = 'block';
+            renderQuestion();
+        }
+
+        // 초기 시작
+        window.onload = () => {
+            renderQuestion();
+        };
+    </script>
+</body>
+</html>
