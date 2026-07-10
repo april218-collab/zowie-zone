@@ -109,9 +109,8 @@
     </div>
 
     <script>
-        // 요청해주신 최신 수파베이스 설정 반영 완료
         const SUPABASE_URL = "https://xivbwdmwvsujbbblmoze.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpdmJ3ZG13dnN1amJiYmxtb3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NzA0ODksImV4cCI6MjA5OTI0NjQ4OX0.kYmNkDI2CJvgThPRWCUD3Sm8rlzydtwMPtsHLYiEbhE";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpdmJ3ZG13dnN1amJiYmxtb3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NzA0ODksImV4cCI6MjA5OTI0Mjg4N30.28DGW23cGI3ltvhRNhvvLk6SyJzeu2Xct_J81HCA1j0";
         
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -249,12 +248,13 @@
                 explainContainer.appendChild(card);
             });
 
-            // 수파베이스 최신 테이블 연동 데이터 적재
+            // 수파베이스 최신 테이블 연동 데이터 적재 (성별 추가 전송)
             try {
                 const { error } = await _supabase
                     .from('test_results')
                     .insert([
                         { 
+                            gender: userData.gender, // 선택한 성별 데이터 저장 ('남성' 또는 '여성')
                             result_type: scoreString,
                             created_at: new Date().toISOString()
                         }
@@ -264,7 +264,6 @@
             } catch (err) {
                 console.error("데이터 서버 전송 에러:", err);
             } finally {
-                // 현장 네트워크 에러로 팅기는 현상을 방지하기 위해 무조건 결과화면을 렌더링시킵니다.
                 showPage('page-result');
             }
         }
