@@ -3,302 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 큐챔스 X ZOWIE 알려존 퀴즈</title>
+    <title>2026 큐챔스 X ZOWIE 퀴즈</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, sans-serif; }
-        body { background-color: #0d0d0d; color: #FFFFFF; display: flex; flex-direction: column; min-height: 100vh; align-items: center; justify-content: center; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
         
-        .page { display: none; width: 100%; max-width: 500px; padding: 24px; text-align: center; }
-        .page.active { display: block; animation: fadeIn 0.4s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #0f0f12 0%, #1a1a24 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
 
-        /* 글래스모피즘 카드 컨테이너 */
-        .container { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 40px 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); width: 100%; }
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px rgba(255, 255, 255, 0.08) solid;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
 
-        /* 타이틀 & 텍스트 스타일 */
-        .main-title { font-size: 32px; font-weight: 800; color: #FFFFFF; line-height: 1.3; margin-bottom: 8px; letter-spacing: -0.5px; }
-        .sub-title { font-size: 15px; color: #BBBBBB; font-weight: 400; margin-bottom: 32px; }
-        
-        /* 버튼 공통 스타일 */
-        .btn-main { background: #BA0C2F; color: #FFFFFF; font-weight: 700; border: none; padding: 20px; border-radius: 16px; cursor: pointer; width: 100%; font-size: 18px; transition: all 0.25s ease; box-shadow: 0 4px 15px rgba(186, 12, 47, 0.3); }
-        .btn-main:hover { background: #E0123A; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(186, 12, 47, 0.5); }
+        /* ZOWIE Signature Color Variable */
+        .text-zowie {
+            color: #FF204E; /* 조위 테마 레드 컬러 */
+        }
 
-        /* 뒤로가기 버튼 스타일 */
-        .btn-prev { background: transparent; border: 1px solid rgba(255, 255, 255, 0.25); color: #CCCCCC; padding: 14px 24px; border-radius: 12px; cursor: pointer; font-size: 15px; display: block; margin: 24px auto 0 auto; transition: all 0.2s; width: fit-content; }
-        .btn-prev:hover { color: #FFFFFF; border-color: rgba(255, 255, 255, 0.6); background: rgba(255, 255, 255, 0.05); }
+        /* custom styling for option button transitions */
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-btn:hover {
+            background: rgba(255, 32, 78, 0.15);
+            border-color: #FF204E;
+            transform: translateY(-2px);
+        }
 
-        /* 성별 선택 스타일 */
-        .gender-container { display: flex; gap: 16px; margin: 32px 0; justify-content: center; }
-        .gender-card { flex: 1; background: rgba(255, 255, 255, 0.04); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 24px 12px; font-size: 20px; font-weight: 700; cursor: pointer; transition: all 0.25s ease; color: #DDDDDD; }
-        .gender-card:hover { border-color: #BA0C2F; background: rgba(186, 12, 47, 0.08); box-shadow: 0 0 20px rgba(186, 12, 47, 0.3); color: #FFFFFF; }
-        .gender-card.selected { border-color: #7BFD57; background: rgba(123, 253, 87, 0.1); box-shadow: 0 0 20px rgba(123, 253, 87, 0.3); color: #FFFFFF; }
-
-        /* 프로그레스 바 */
-        .progress-container { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; margin-bottom: 32px; overflow: hidden; }
-        .progress-bar { height: 100%; width: 0%; background: #BA0C2F; border-radius: 3px; transition: width 0.3s ease; box-shadow: 0 0 8px #BA0C2F; }
-
-        /* 퀴즈 문항 스타일 */
-        .q-num { color: #7BFD57; font-size: 16px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; text-align: left; }
-        .q-text { font-size: 22px; font-weight: 800; color: #FFFFFF; line-height: 1.45; text-align: left; margin-bottom: 12px; word-break: keep-all; }
-        .q-example { font-size: 14px; font-weight: 400; color: #DDDDDD; background: rgba(255, 255, 255, 0.03); padding: 16px; border-radius: 12px; border-left: 3px solid rgba(255,255,255,0.2); text-align: left; line-height: 1.6; margin-bottom: 28px; white-space: pre-line; word-break: keep-all; }
-        
-        /* 퀴즈 선택지 버튼 */
-        .options-wrapper { display: flex; flex-direction: column; gap: 12px; }
-        .option-btn { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.15); padding: 18px 20px; border-radius: 14px; color: #FFFFFF; text-align: left; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); line-height: 1.4; word-break: keep-all; }
-        .option-btn:hover { border-color: #BA0C2F !important; background: rgba(186, 12, 47, 0.12) !important; box-shadow: 0 0 20px rgba(186, 12, 47, 0.4) !important; transform: translateX(2px); }
-
-        /* 결과 화면 스타일 */
-        .score-large { font-size: 64px; font-weight: 900; color: #7BFD57; margin: 16px 0 32px 0; letter-spacing: -1px; }
-        .review-wrapper { display: flex; flex-direction: column; gap: 16px; text-align: left; margin-top: 24px; }
-        .review-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 20px; }
-        .review-card.correct { border-left: 4px solid #7BFD57; }
-        .review-card.incorrect { border-left: 4px solid #BA0C2F; }
-        .review-status { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
-        .review-card.correct .review-status { color: #7BFD57; }
-        .review-card.incorrect .review-status { color: #BA0C2F; }
-        .review-q { font-size: 16px; font-weight: 700; color: #FFFFFF; margin-bottom: 8px; line-height: 1.4; }
-        .review-ans { font-size: 14px; color: #BBBBBB; margin-bottom: 8px; }
-        .review-ans span { color: #FFF; font-weight: bold; }
-        .review-expl { font-size: 13px; color: #999999; line-height: 1.5; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; }
+        /* Hint section animation */
+        .hint-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+        }
+        .hint-content.open {
+            max-height: 100px;
+            opacity: 1;
+            margin-top: 8px;
+        }
     </style>
 </head>
-<body>
+<body class="flex items-center justify-center p-4">
 
-    <div id="home-page" class="page active">
-        <div class="container">
-            <h1 class="main-title" style="font-weight: 800;">ZOWIE ZONE 알려존 이벤트</h1>
-            <p class="sub-title" style="font-size: 14px; color: #999999; font-weight: 400;">오프라인 현장 이벤트</p>
-            <button class="btn-main" onclick="startTest()">이벤트 참여하기</button>
-        </div>
-    </div>
-
-    <div id="gender-page" class="page">
-        <div class="container">
-            <h2 class="main-title" style="font-size: 24px; font-weight: 800;">성별을 선택해주세요</h2>
-            <p class="sub-title" style="font-size: 14px; color: #999999; margin-bottom: 16px;">통계 집계를 위해 사용됩니다.</p>
-            <div class="gender-container">
-                <div id="gender-m" class="gender-card" onclick="selectGender('male')">👦 남성</div>
-                <div id="gender-f" class="gender-card" onclick="selectGender('female')">👧 여성</div>
+    <div class="w-full max-w-md glass-panel rounded-2xl p-6 min-h-[580px] flex flex-col justify-between relative overflow-hidden">
+        
+        <div id="intro-page" class="flex-1 flex flex-col justify-between py-6">
+            <div class="text-center my-auto space-y-4">
+                <h1 class="text-3xl font-extrabold tracking-tight">
+                    <span class="text-zowie">ZOWIE</span> ZONE 알려존!
+                </h1>
+                <p class="text-gray-400 font-light text-sm tracking-wide">오프라인 현장 이벤트</p>
             </div>
-            <button class="btn-main" onclick="goToQuestion()">퀴즈 시작하기</button>
-            <button class="btn-prev" onclick="showPage('home-page')">이전으로</button>
-        </div>
-    </div>
-
-    <div id="question-page" class="page">
-        <div class="progress-container">
-            <div id="progress-bar" class="progress-bar"></div>
-        </div>
-        <div class="container">
-            <div id="q-number" class="q-num"></div>
-            <div id="q-text" class="q-text"></div>
-            <div id="q-example" class="q-example"></div>
-            <div id="options-wrapper" class="options-wrapper"></div>
-            <button class="btn-prev" onclick="prevQuestion()">이전 문제로</button>
-        </div>
-    </div>
-
-    <div id="result-page" class="page">
-        <div class="container">
-            <h2 class="main-title" style="font-size: 24px; font-weight: 800;">퀴즈 완료!</h2>
-            <p class="sub-title" style="margin-bottom: 8px;">당신의 최종 점수는?</p>
-            <div id="score-text" class="score-large"></div>
-            <button class="btn-main" onclick="resetAll()">처음으로 돌아가기</button>
             
-            <div class="review-wrapper" id="review-wrapper">
-                </div>
+            <button onclick="startQuiz()" class="w-full bg-[#FF204E] hover:bg-[#d6143c] text-white font-bold py-4 px-6 rounded-xl shadow-lg transform active:scale-95 transition text-center cursor-pointer">
+                이벤트 참여하기
+            </button>
         </div>
+
+        <div id="quiz-page" class="hidden flex-1 flex flex-col justify-between">
+            <div>
+                <div class="mb-6">
+                    <div class="text-center text-xs font-medium text-gray-400 mb-2 tracking-wider">
+                        큐챔스 x <span class="text-zowie font-bold">ZOWIE</span> 퀴즈
+                    </div>
+                    <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-[#FF204E] h-full transition-all duration-300" style="width: 33.3%;"></div>
+                    </div>
+                </div>
+
+                <div class="my-4">
+                    <span class="text-xs font-bold text-[#FF204E] uppercase tracking-widest bg-[#FF204E]/10 px-2.5 py-1 rounded-md" id="question-number">Q1</span>
+                    <h2 class="text-xl font-bold mt-3 leading-snug word-break" id="question-text">
+                        질문 로딩중...
+                    </h2>
+                </div>
+
+                <div class="mb-6 bg-white/5 rounded-xl p-3 border border-white/5">
+                    <button onclick="toggleHint()" id="hint-toggle-btn" class="text-xs text-gray-400 hover:text-white flex items-center justify-between w-full focus:outline-none cursor-pointer">
+                        <span>💡 힌트 가 숨겨져 있습니다. (클릭해서 보기)</span>
+                        <span id="hint-icon" class="transition-transform duration-200">▼</span>
+                    </button>
+                    <div id="hint-container" class="hint-content text-sm text-gray-300 pl-1 font-light leading-relaxed">
+                        힌트 내용
+                    </div>
+                </div>
+
+                <div class="space-y-3" id="options-container">
+                    </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-white/5 flex justify-center">
+                <button onclick="prevQuestion()" class="text-xs text-gray-400 hover:text-white flex items-center gap-1.5 transition px-4 py-2 rounded-lg hover:bg-white/5 cursor-pointer">
+                    ⬅️ 이전 문제로
+                </button>
+            </div>
+        </div>
+
+        <div id="result-page" class="hidden flex-1 flex flex-col justify-between py-4">
+            <div class="text-center my-auto space-y-6">
+                <div class="inline-flex p-4 bg-[#FF204E]/10 rounded-full text-[#FF204E] text-4xl mb-2 animate-bounce">
+                    🏆
+                </div>
+                <h2 class="text-2xl font-bold">퀴즈 완료!</h2>
+                
+                <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
+                    <p class="text-gray-400 text-sm">당신의 최종 점수는?</p>
+                    <p class="text-4xl font-extrabold text-[#FF204E] mt-2" id="score-text">0 / 3</p>
+                </div>
+                
+                <p class="text-sm text-gray-400 px-4">
+                    축하합니다! 화면을 현장 스태프에게 인증하고 경품을 수령하세요.
+                </p>
+            </div>
+
+            <button onclick="resetQuiz()" class="w-full bg-white/10 hover:bg-white/10 text-white font-medium py-3.5 px-6 rounded-xl border border-white/10 transition text-center cursor-pointer">
+                처음으로 돌아가기
+            </button>
+        </div>
+
     </div>
 
     <script>
-        // 퀴즈 문항 데이터셋 구성
+        // --- 1. 수파베이스 (Supabase) 설정 정보 고정 ---
+        const SUPABASE_URL = "https://qaiujvaydoowubvnvace.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhaXVqdmayZG9vd3Vidm52YWNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NjY4ODcsImV4cCI6MjA5OTI0Mjg4N30.28DGW23cGI3ltvhRNhvvLk6SyJzeu2Xct_J81HCA1j0";
+        
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // --- 2. 퀴즈 문항 데이터셋 (힌트 및 ZOWIE 컬러 하이라이트 반영) ---
+        // 'ZOWIE' 텍스트 부분만 조위 레드 컬러를 바인딩하기 위해 렌더링 시점에 가공 처리합니다.
         const questions = [
             {
                 q: "이번 '2026 큐챔스' 오프라인 본선이 치러지는 장소이자, 벤큐 조위(ZOWIE)의 프로급 프리미엄 게이밍 기어 라인업을 직접 체험할 수 있도록 구축된 이 전용 좌석 공간의 이름은 무엇일까요?",
-                example: "예시)\n이벤트가 진행되고 있는 공간의 명칭을 골라주세요.",
-                options: ["① 벤큐 랜드", "② 조위존 (ZOWIE ZONE)", "③ 큐브 스튜디오", "④ 옵티멈 스페이스"],
-                answer: 1, // ② 조위존 (ZOWIE ZONE)
-                expl: "벤큐 조위(ZOWIE)의 고사양 게이밍 기어가 세팅된 독점 체험존 명칭은 '조위존(ZOWIE ZONE)'입니다."
+                hint: "영어 알파벳 대문자로 구성된 전용 구역 공간의 이름이며, ZOWIE ZONE 이라는 수식어가 붙습니다.",
+                options: [
+                    { text: "① 벤큐 랜드", score: 0 },
+                    { text: "② 조위존 (ZOWIE ZONE)", score: 1 },
+                    { text: "③ 큐브 스튜디오", score: 0 },
+                    { text: "④ 옵티멈 스페이스", score: 0 }
+                ]
             },
             {
                 q: "조위(ZOWIE) 게이밍 모니터에 탑재된 독점 기술로, 화면이 격렬하게 전환되는 상황에서도 잔상을 완벽하게 제거하여, 눈으로 볼 때 이미지가 안정적으로 보이도록 돕는 이 기술의 이름은 무엇일까요?",
-                example: "예시)\nFPS 게임 등 고속 화면 전환 시 화면 정밀도를 극대화하는 독점 기술입니다.",
-                options: ["① DyAc™ (다이악)", "② Acrobatic", "③ Commander", "④ Line Breaker"],
-                answer: 0, // ① DyAc™ (다이악)
-                expl: "DyAc™(Dynamic Accuracy)는 벤큐 조위만의 독점 잔상 제거 기술로, 화면의 흔들림을 줄여 정밀한 조준을 돕습니다."
+                hint: "영어 알파벳 4글자로 구성되어 있으며, 다이악(DyAc)이라고 발음합니다.",
+                options: [
+                    { text: "① DyAc™ (다이악)", score: 1 },
+                    { text: "② Acrobatic", score: 0 },
+                    { text: "③ Commander", score: 0 },
+                    { text: "④ Line Breaker", score: 0 }
+                ]
             },
             {
                 q: "현재 이용 중이신 조위존 2인실에 장착되어 있는 장비로, 최고급 오디오 칩셋을 통해 일반 PC와는 차원이 다른 풍부하고 디테일한 하이엔드 입체 사운드를 만끽할 수 있도록 돕는 사운드카드의 명칭은 무엇일까요?",
-                example: "예시)\n풍부한 사운드 밸런스와 하이엔드 입체 음향을 출력해 주는 외장 사운드 하드웨어입니다.",
-                options: ["① 사운드 블라스터 (Sound Blaster)", "② 조위 오디오", "③ 큐챔스 볼륨", "④ 벤큐 사운드"],
-                answer: 0, // ① 사운드 블라스터 (Sound Blaster)
-                expl: "조위존 2인실에는 최상급 사운드 플레이를 위해 최고급 오디오 칩셋 사운드 블라스터 외장 사운드카드가 세팅되어 있습니다."
+                hint: "PC 주변기기가 아닌 사운드 명가 혹은 조위 자체 오디오 라인업과 구별되는 외장형 하드웨어 장치 이름입니다.",
+                options: [
+                    { text: "① 사운드 블라스터 (Sound Blaster)", score: 1 },
+                    { text: "② 조위 오디오", score: 0 },
+                    { text: "③ 큐챔스 볼륨", score: 0 },
+                    { text: "④ 벤큐 사운드", score: 0 }
+                ]
             }
         ];
 
-        // 상태 변수 정의
-        let _supabase = null;
-        let userGender = "";
+        // --- 3. 상태 제어 변수 ---
         let currentIdx = 0;
-        let userAnswers = []; // 사용자가 선택한 정답 인덱스 기록 리스트
+        let userAnswers = []; // 각 문항별 유저가 획득한 스코어 저장 배열
 
-        // 수파베이스 안전 초기화
-        window.addEventListener('DOMContentLoaded', () => {
-            try {
-                const SUPABASE_URL = "https://qaiujvaydoowubvnvace.supabase.co";
-                const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhaXVqdmF5ZG9vd3Vidm52YWNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM6NjY4ODcsImV4cCI6MjA5OTI0Mjg4N30.28DGW23cGI3ltvhRNhvvLk6SyJzeu2Xct_J81HCA1j0";
-                if (typeof supabase !== 'undefined') {
-                    _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                }
-            } catch (e) {
-                console.error("수파베이스 초기화 실패:", e.message);
-            }
-        });
-
-        // 페이지 전환 핸들러
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const target = document.getElementById(pageId);
-            if (target) target.classList.add('active');
-            window.scrollTo(0, 0);
+        // --- 4. 텍스트 바인딩 시 ZOWIE 단어 색상 변환 함수 ---
+        function formatZowieText(text) {
+            // '퀴즈'라는 글자 뒤에 오는 경우가 아닌 순수 'ZOWIE' 또는 '조위' 영단어들을 하이라이트 처리
+            return text.replace(/ZOWIE/g, '<span class="text-zowie font-extrabold">ZOWIE</span>');
         }
 
-        function startTest() {
-            showPage('gender-page');
-        }
-
-        function selectGender(gender) {
-            userGender = gender;
-            document.getElementById('gender-m').classList.remove('selected');
-            document.getElementById('gender-f').classList.remove('selected');
-            if (gender === 'male') document.getElementById('gender-m').classList.add('selected');
-            if (gender === 'female') document.getElementById('gender-f').classList.add('selected');
-        }
-
-        function goToQuestion() {
-            if (!userGender) {
-                alert("성별을 선택해주세요!");
-                return;
-            }
+        // --- 5. 화면 전환 함수 ---
+        function startQuiz() {
+            document.getElementById('intro-page').classList.add('hidden');
+            document.getElementById('quiz-page').classList.remove('hidden');
             currentIdx = 0;
             userAnswers = [];
-            showPage('question-page');
             renderQuestion();
         }
 
-        // 퀴즈 화면 동적 렌더링
-        function renderQuestion() {
-            const qData = questions[currentIdx];
-            
-            // 프로그레스 바 상태 업데이트
-            const progressPercent = (currentIdx / questions.length) * 100;
-            document.getElementById('progress-bar').style.width = progressPercent + "%";
+        function toggleHint(forceClose = false) {
+            const hintContainer = document.getElementById('hint-container');
+            const hintIcon = document.getElementById('hint-icon');
+            const toggleBtn = document.getElementById('hint-toggle-btn');
 
-            // 질문 영역 바인딩
-            document.getElementById('q-number').innerText = `QUESTION 0${currentIdx + 1}`;
-            document.getElementById('q-text').innerText = qData.q;
-            
-            // 예시 영역 조건부 처리
-            const exBlock = document.getElementById('q-example');
-            if (qData.example && qData.example.trim() !== "") {
-                exBlock.innerText = qData.example;
-                exBlock.style.display = "block";
+            if (hintContainer.classList.contains('open') || forceClose) {
+                hintContainer.classList.remove('open');
+                hintIcon.style.transform = 'rotate(0deg)';
+                toggleBtn.querySelector('span').innerText = '💡 힌트 가 숨겨져 있습니다. (클릭해서 보기)';
             } else {
-                exBlock.style.display = "none";
+                hintContainer.classList.add('open');
+                hintIcon.style.transform = 'rotate(180deg)';
+                toggleBtn.querySelector('span').innerText = '💡 힌트 내용을 확인 중입니다.';
             }
+        }
 
-            // 선택지 리스트 출력
-            const wrapper = document.getElementById('options-wrapper');
-            wrapper.innerHTML = "";
-            qData.options.forEach((opt, idx) => {
+        // --- 6. 문제 렌더링 함수 ---
+        function renderQuestion() {
+            // 무조건 새 문제를 불러올 때는 힌트 창을 닫아둔 상태로 세팅
+            toggleHint(true);
+
+            const currentQuestion = questions[currentIdx];
+            
+            // 상단 진행도 프로그레스 바 계산
+            const progressPercent = ((currentIdx + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            
+            // 문제 번호 및 텍스트 적용 (ZOWIE 영단어 컬러 가공 포함)
+            document.getElementById('question-number').innerText = `Q${currentIdx + 1}`;
+            document.getElementById('question-text').innerHTML = formatZowieText(currentQuestion.q);
+            document.getElementById('hint-container').innerHTML = formatZowieText(currentQuestion.hint);
+            
+            // 선택지 구성
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            currentQuestion.options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
-                btn.className = "option-btn";
-                btn.innerText = opt;
-                btn.onclick = () => selectOption(idx);
-                wrapper.appendChild(btn);
+                btn.className = "w-full text-left option-btn p-4 rounded-xl text-sm font-medium cursor-pointer flex items-center justify-between";
+                btn.innerHTML = `<span>${formatZowieText(opt.text)}</span> <span class="text-white/20 text-xs">➔</span>`;
+                btn.onclick = () => selectOption(opt.score);
+                optionsContainer.appendChild(btn);
             });
         }
 
-        function selectOption(selectedIdx) {
-            userAnswers[currentIdx] = selectedIdx;
+        // --- 7. 보기 선택 및 스코어 누적 함수 ---
+        function selectOption(score) {
+            userAnswers[currentIdx] = score; // 해당 인덱스에 점수 저장
+            
             if (currentIdx < questions.length - 1) {
                 currentIdx++;
                 renderQuestion();
             } else {
-                calculateAndUploadResult();
+                submitFinalResults();
             }
         }
 
-        // 뒤로가기 (이전 문제 이동) 기능 추가
+        // --- 8. 이전 문제로 가기 (뒤로가기 핵심 기능) ---
         function prevQuestion() {
             if (currentIdx > 0) {
                 currentIdx--;
                 renderQuestion();
             } else {
-                showPage('gender-page');
+                // 1번 문항에서 뒤로가기를 누를 경우 인트로(랜딩) 페이지로 복귀
+                document.getElementById('quiz-page').classList.add('hidden');
+                document.getElementById('intro-page').classList.remove('hidden');
             }
         }
 
-        // 결과 산출 및 데이터 백엔드 전송
-        async function calculateAndUploadResult() {
-            let correctCount = 0;
-            questions.forEach((q, idx) => {
-                if (userAnswers[idx] === q.answer) {
-                    correctCount++;
-                }
-            });
-
-            const finalScoreText = `${correctCount} / ${questions.length}`;
-            document.getElementById('score-text').innerText = finalScoreText;
-
-            // 오답 노트 빌드
-            renderReviewNotes();
-            showPage('result-page');
-
-            // 수파베이스 테이블 데이터 전송 (test_results 형식 호환 유지)
-            if (_supabase) {
-                try {
-                    const korGender = userGender === 'male' ? '남성' : '여성';
-                    await _supabase.from('test_results').insert([
-                        { gender: korGender, result_type: finalScoreText }
+        // --- 9. 결과 제출 및 Supabase 데이터 적재 ---
+        async function submitFinalResults() {
+            // 총점 연산
+            const totalScore = userAnswers.reduce((acc, curr) => acc + curr, 0);
+            const scoreString = `${totalScore} / ${questions.length}`;
+            
+            document.getElementById('score-text').innerText = scoreString;
+            
+            // 화면 UI 결과창으로 전환
+            document.getElementById('quiz-page').classList.add('hidden');
+            document.getElementById('result-page').classList.remove('hidden');
+            
+            // 수파베이스 데이터베이스 'test_results' 테이블 인서트 트랜잭션 수행
+            try {
+                const { data, error } = await _supabase
+                    .from('test_results')
+                    .insert([
+                        { 
+                            result_type: scoreString,
+                            created_at: new Date().toISOString()
+                        }
                     ]);
-                } catch (err) {
-                    console.error("데이터 서버 전송 에러:", err.message);
-                }
+                if (error) throw error;
+                console.log("데이터가 성공적으로 수파베이스에 적재되었습니다.", data);
+            } catch (err) {
+                console.error("데이터 적재 실패:", err.message);
             }
         }
 
-        // 오답노트 UI 렌더링
-        function renderReviewNotes() {
-            const wrapper = document.getElementById('review-wrapper');
-            wrapper.innerHTML = "";
-
-            questions.forEach((q, idx) => {
-                const isCorrect = userAnswers[idx] === q.answer;
-                const card = document.createElement('div');
-                card.className = `review-card ${isCorrect ? 'correct' : 'incorrect'}`;
-
-                card.innerHTML = `
-                    <div class="review-status">${isCorrect ? '✓ 정답입니다' : '✗ 오답입니다'}</div>
-                    <div class="review-q">Q${idx + 1}. ${q.q}</div>
-                    <div class="review-ans">내가 고른 답: <span>${q.options[userAnswers[idx]]}</span></div>
-                    <div class="review-ans">실제 정답: <span style="color:#7BFD57;">${q.options[q.answer]}</span></div>
-                    <div class="review-expl">💡 해설: ${q.expl}</div>
-                `;
-                wrapper.appendChild(card);
-            });
-        }
-
-        // 리셋 함수
-        function resetAll() {
-            userGender = "";
+        // --- 10. 처음으로 돌아가기 (초기화) ---
+        function resetQuiz() {
+            document.getElementById('result-page').classList.add('hidden');
+            document.getElementById('intro-page').classList.remove('hidden');
             currentIdx = 0;
             userAnswers = [];
-            document.getElementById('gender-m').classList.remove('selected');
-            document.getElementById('gender-f').classList.remove('selected');
-            document.getElementById('progress-bar').style.width = "0%";
-            showPage('home-page');
         }
     </script>
 </body>
