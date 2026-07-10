@@ -87,13 +87,14 @@
     </div>
 
     <script>
-        // 최신 수파베이스(Supabase) 연동 설정 적용
-        const SUPABASE_URL = "https://xivbwdmwvsujbbblmoze.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpdmJ3ZG13dnN1amJiYmxtb3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NzA0ODksImV4cCI6MjA5OTI0NjQ4OX0.kYmNkDI2CJvgThPRWCUD3Sm8rlzydtwMPtsHLYiEbhE";
-        
-        const supabase = _supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // 전역 변수 중복 선언 방지를 위해 단 한 번만 초기화되도록 안전장치 마련
+        if (typeof window.supabaseClient === 'undefined') {
+            const SUPABASE_URL = "https://xivbwdmwvsujbbblmoze.supabase.co";
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpdmJ3ZG13dnN1amJiYmxtb3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NzA0ODksImV4cCI6MjA5OTI0NjQ4OX0.kYmNkDI2CJvgThPRWCUD3Sm8rlzydtwMPtsHLYiEbhE";
+            window.supabaseClient = _supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
 
-        // 테스트 문항 데이터 세팅 (ZOWIE 하이라이트를 배제하고 텍스트를 흰색으로 통일하기 위해 인라인 컬러 제거)
+        // 퀴즈 데이터 세팅
         const quizData = [
             {
                 question: "1. 벤큐의 게이밍 전문 브랜드 ZOWIE에서 최초로 출시한 무선 게이밍 마우스의 시리즈 이름은 무엇일까요?",
@@ -152,7 +153,7 @@
         prevBtn.onclick = () => {
             if (currentStep > 0) {
                 currentStep--;
-                userResponses.pop(); // 직전 선택 내역 삭제
+                userResponses.pop();
                 loadQuestion();
             }
         };
@@ -160,8 +161,6 @@
         // 문항 렌더링 함수
         function loadQuestion() {
             const currentQuiz = quizData[currentStep];
-            
-            // 1. 게이지 및 텍스트 업데이트
             const total = quizData.length;
             const progressValue = ((currentStep + 1) / total) * 100;
             
@@ -169,18 +168,15 @@
             progressPercent.innerText = `${Math.round(progressValue)}%`;
             progressBar.style.width = `${progressValue}%`;
 
-            // 2. [이전 문제로] 버튼 활성화 여부 제어
             if (currentStep > 0) {
                 prevBtn.classList.remove('hidden');
             } else {
                 prevBtn.classList.add('hidden');
             }
 
-            // 3. 질문 및 힌트 텍스트 바인딩
             questionText.innerText = currentQuiz.question;
             hintText.innerText = currentQuiz.hint;
 
-            // 4. 선택지 버튼 생성
             optionsContainer.innerHTML = '';
             currentQuiz.options.forEach((option) => {
                 const btn = document.createElement('button');
@@ -211,22 +207,20 @@
             }
         }
 
-        // 수파베이스최종 데이터 적재 및 처리
+        // 수파베이스 데이터 적재
         async function submitFinalResults() {
             try {
-                // 수파베이스 테이블 구조 명세에 맞춰 JSON 객체 빌드
                 const payload = {
                     result_type: `Q1:${userResponses[0].selected} | Q2:${userResponses[1].selected} | Q3:${userResponses[2].selected} | Q4:${userResponses[3].selected} | Q5:${userResponses[4].selected}`,
                     created_at: new Date().toISOString()
                 };
 
-                const { data, error } = await supabase
+                const { data, error } = await window.supabaseClient
                     .from('test_results')
                     .insert([payload]);
 
                 if (error) throw error;
 
-                // 성공 시 완료 화면 노출
                 quizPage.classList.add('hidden');
                 resultPage.classList.remove('hidden');
 
