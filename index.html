@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 큐챔스 X ZOWIE 취향 테스트</title>
+    <title>2026 큐챔스 X ZOWIE 퀴즈 이벤트</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -16,15 +16,10 @@
             background-color: #0d0d0d;
             color: #ffffff;
             display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        .main-content {
-            flex: 1;
-            display: flex;
             justify-content: center;
             align-items: center;
-            padding: 40px 20px;
+            min-height: 100vh;
+            padding: 20px;
         }
         .container {
             width: 100%;
@@ -45,105 +40,22 @@
             display: block;
         }
         
-        /* 인트로 홈 페이지 스타일 */
+        /* 홈 메인 랜딩 스타일 */
         .intro-title-bold {
-            font-size: 32px;
+            font-size: 34px;
             font-weight: 800;
             color: #ffffff;
             margin-bottom: 8px;
             letter-spacing: -0.5px;
         }
         .intro-desc-thin {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 300;
             color: #cccccc;
-            margin-bottom: 35px;
-        }
-        .intro-body-text {
-            font-size: 15px;
-            line-height: 1.7;
-            color: #e0e0e0;
-            text-align: left;
-            margin-bottom: 30px;
-            word-break: keep-all;
-        }
-        .recommend-box {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: left;
-            margin-bottom: 30px;
-        }
-        .recommend-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #7BFD57;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .recommend-list {
-            list-style: none;
-        }
-        .recommend-list li {
-            font-size: 14px;
-            color: #cccccc;
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-        .recommend-list li:last-child {
-            margin-bottom: 0;
-        }
-        .intro-footer-bold {
-            font-size: 15px;
-            font-weight: bold;
-            color: #ffffff;
-            margin-bottom: 30px;
-            word-break: keep-all;
-        }
-
-        /* 성별 선택 페이지 스타일 */
-        .gender-title-bold {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-        .gender-desc-thin {
-            font-size: 15px;
-            color: #CCCCCC;
-            font-weight: 400;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .gender-container {
-            display: flex;
-            gap: 24px;
-            margin: 30px 0 40px 0;
-            justify-content: center;
-        }
-        .gender-option {
-            width: 160px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 22px 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffffff;
-        }
-        .gender-option.selected {
-            border-color: #7BFD57;
-            background: rgba(123, 253, 87, 0.1);
-            box-shadow: 0 0 20px rgba(123, 253, 87, 0.3);
+            margin-bottom: 40px;
         }
         
-        /* 공통 버튼 디자인 */
+        /* 공통 메인 액션 버튼 */
         .btn-action {
             background: #BA0C2F;
             color: #ffffff;
@@ -162,636 +74,208 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(186, 12, 47, 0.6);
         }
-        .btn-next {
-            background: #FFFFFF;
-            color: #333333;
-            font-weight: bold;
-            border: none;
-            padding: 18px;
-            border-radius: 12px;
-            cursor: pointer;
-            max-width: 300px;
-            width: 100%;
-            font-size: 18px;
-            margin: 0 auto;
-            display: block;
+
+        /* 성별 선택 카드 UI */
+        .gender-container {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0 40px 0;
+            justify-content: center;
         }
-        .btn-prev {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #FFFFFF;
-            padding: 14px 24px;
-            border-radius: 12px;
+        .gender-option {
+            width: 150px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 24px 10px;
+            text-align: center;
             cursor: pointer;
-            font-size: 15px;
-            display: block;
-            margin: 0 auto;
+            transition: all 0.25s ease;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        /* 마우스 호버 시 조위 시그니처 레드 은은한 광채 효과 */
+        .gender-option:hover {
+            border-color: #BA0C2F;
+            background: rgba(186, 12, 47, 0.08);
+            box-shadow: 0 0 20px rgba(186, 12, 47, 0.5);
+        }
+        .gender-option.selected {
+            border-color: #7BFD57;
+            background: rgba(123, 253, 87, 0.1);
+            box-shadow: 0 0 20px rgba(123, 253, 87, 0.3);
         }
         
-        /* 퀴즈 문제 화면 스타일 */
+        /* 퀴즈 문제 및 선택지 스타일 */
         .progress-container {
             width: 100%;
-            height: 8px;
+            height: 6px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            margin-bottom: 40px;
-            position: relative;
+            border-radius: 3px;
+            margin-bottom: 35px;
         }
         .progress-bar {
             height: 100%;
             width: 0%;
             background: #BA0C2F;
-            border-radius: 4px;
+            border-radius: 3px;
             transition: width 0.3s ease;
-            box-shadow: 0 0 10px #BA0C2F;
+        }
+        .question-number {
+            color: #7BFD57;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
         }
         .question-text {
-            font-size: 24px;
-            font-weight: 800;
+            font-size: 21px;
+            font-weight: 700;
             line-height: 1.5;
-            margin-bottom: 32px;
+            margin-bottom: 35px;
             word-break: keep-all;
-            text-align: center;
         }
         .options-container {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-bottom: 40px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
+            gap: 14px;
         }
         .option-btn {
             width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 18px 20px;
             border-radius: 14px;
-            color: #FFFFFF;
+            color: #ffffff;
             text-align: left;
-            font-size: 17px;
+            font-size: 16px;
             cursor: pointer;
             transition: all 0.25s ease;
-            line-height: 1.5;
+            line-height: 1.4;
         }
+        /* 마우스 호버 시 조위 시그니처 레드 은은한 광채 효과 */
         .option-btn:hover {
-            border-color: #7BFD57 !important;
-            background: rgba(123, 253, 87, 0.12) !important;
-            box-shadow: 0 0 20px rgba(123, 253, 87, 0.45) !important;
+            border-color: #BA0C2F;
+            background: rgba(186, 12, 47, 0.08);
+            box-shadow: 0 0 20px rgba(186, 12, 47, 0.5);
         }
         
-        /* 결과 화면 스타일 */
-        .result-title {
-            font-size: 16px;
-            color: #FFD700;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .result-type {
-            font-size: 32px;
+        /* 결과 레포트 오답노트 디자인 */
+        .score-display {
+            font-size: 64px;
             font-weight: 900;
-            text-align: center;
-            margin-bottom: 24px;
             color: #7BFD57;
-        }
-        .result-headline {
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 24px;
-            color: #FFD700;
-        }
-        .result-analysis {
-            font-size: 16px;
-            line-height: 1.8;
-            color: #E0E0E0;
             margin-bottom: 30px;
-            text-align: center;
-            word-break: keep-all;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
+            letter-spacing: -1px;
         }
-        .result-checklist-ul {
-            list-style: none;
-            text-align: left;
-            max-width: 400px;
-            margin: 0 auto 35px auto;
-            background: rgba(0,0,0,0.2);
-            padding: 20px 24px;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .result-checklist-ul li {
-            font-size: 15px;
-            color: #FFFFFF;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .result-checklist-ul li:last-child {
-            margin-bottom: 0;
-        }
-        .result-drink-box {
-            background: rgba(255,255,255,0.03);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px dashed rgba(255,255,255,0.15);
-            max-width: 500px;
-            margin: 0 auto 30px auto;
-        }
-        .result-drink-box .drink-tag {
-            font-size: 16px;
-            font-weight: bold;
-            color: #7BFD57;
-            background: rgba(123, 253, 87, 0.1);
-            padding: 8px 16px;
-            border-radius: 8px;
-            display: inline-block;
-            margin-bottom: 12px;
-        }
-        .result-drink-box .drink-desc {
-            font-size: 14px;
-            color: #CCCCCC;
-            line-height: 1.5;
-        }
-        
-        /* 통계 섹션 스타일 */
-        .stats-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 16px;
-            color: #7BFD57;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 8px;
-            text-align: left;
-        }
-        .stat-row {
-            margin-bottom: 14px;
-            font-size: 14px;
-            text-align: left;
-        }
-        .stat-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            font-weight: bold;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-top: 20px;
-        }
-        @media (max-width: 768px) {
-            .stats-grid { grid-template-columns: 1fr; }
-        }
-        .stat-track {
-            width: 100%;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-        .stat-fill {
-            height: 100%;
-            width: 0%;
-            background: #1C03E1;
-            border-radius: 6px;
-            transition: width 1s cubic-bezier(0.1, 0.8, 0.2, 1);
-        }
-        .stat-fill.jeiyuk { background: #BA0C2F; }
-        .stat-fill.rose { background: #FF69B4; }
-        .stat-fill.chicken { background: #FFD700; }
-        
-        .btn-reset {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #FFFFFF;
-            padding: 18px;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 17px;
-            font-weight: bold;
-            margin-top: 24px;
-            transition: background 0.2s;
-        }
-        .btn-reset:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
-
-        /* 하단 유형 미리보기 구역 */
-        .preview-section {
-            max-width: 1100px;
-            margin: 60px auto 40px auto;
-            padding: 0 20px;
-        }
-        .preview-title {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 24px;
-            text-align: center;
-            color: #ffffff;
-        }
-        .preview-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        @media (max-width: 900px) {
-            .preview-container { grid-template-columns: 1fr; }
-        }
-        .preview-card {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 16px;
-            padding: 24px;
-            border-top: 4px solid #BA0C2F;
-            text-align: left;
+        .feedback-list {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 25px;
         }
-        .preview-name {
-            font-size: 20px;
+        .feedback-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: left;
+            border-left: 4px solid #BA0C2F;
+        }
+        .feedback-q {
+            font-size: 15px;
             font-weight: bold;
-            margin-bottom: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 8px;
+            color: #ffffff;
+            margin-bottom: 6px;
+            word-break: keep-all;
         }
-        .preview-sub-title {
+        .feedback-status {
             font-size: 14px;
             font-weight: bold;
-            color: #BBBBBB;
-            margin-top: 14px;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
-        .preview-text {
-            font-size: 14px;
-            color: #D0D0D0;
+        .feedback-status.correct { color: #7BFD57; }
+        .feedback-status.incorrect { color: #BA0C2F; }
+        .feedback-expl {
+            font-size: 13px;
+            color: #cccccc;
             line-height: 1.5;
-            margin-bottom: 12px;
             word-break: keep-all;
-        }
-        .checklist {
-            list-style: none;
-            margin: 8px 0 16px 0;
-            font-size: 14px;
-            color: #D0D0D0;
-            line-height: 1.6;
-        }
-        .checklist li {
-            margin-bottom: 6px;
-        }
-        .drink-tag-container {
-            width: 100%;
-            border-top: 1px dashed rgba(255,255,255,0.15);
-            padding-top: 12px;
-            margin-top: auto;
-        }
-        .drink-tag {
-            font-size: 14px;
-            font-weight: bold;
-            color: #7BFD57;
-            background: rgba(123, 253, 87, 0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
-            display: inline-block;
-            width: 100%;
-            text-align: center;
-            margin-bottom: 6px;
-        }
-        .drink-desc {
-            font-size: 12px;
-            color: #CCCCCC;
-            line-height: 1.4;
-            text-align: center;
-            display: block;
-            word-break: keep-all;
-        }
-
-        /* 파트너 로고 및 푸터 */
-        .test-partner-logos {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 24px;
-            margin-top: 32px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .test-partner-logos img {
-            height: 26px;
-            max-width: 100px;
-            object-fit: contain;
-            opacity: 0.65;
-        }
-        footer {
-            margin-top: auto;
-            width: 100%;
-            background: #000000;
-            padding: 32px 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 48px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        footer img {
-            height: 40px;
-            max-width: 140px;
-            object-fit: contain;
-            opacity: 0.8;
         }
     </style>
 </head>
 <body>
 
-    <div class="main-content">
-        <div class="container">
+    <div class="container">
+        
+        <div id="home-page" class="page active">
+            <h1 class="intro-title-bold">ZOWIE ZONE 알려존 이벤트</h1>
+            <p class="intro-desc-thin">오프라인 현장이벤트</p>
+            <button class="btn-action" onclick="showPage('gender-page')">시작하기</button>
+        </div>
+
+        <div id="gender-page" class="page">
+            <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">성별 선택</h2>
+            <p style="color: #ccc; font-size: 15px;">통계 집계를 위해 성별을 선택해 주세요.</p>
             
-            <div id="home-page" class="page active">
-                <h1 class="intro-title-bold">ZOWIE ZONE 알려존!</h1>
-                <p class="intro-desc-thin">오프라인 현장 이벤트</p>
-                
-                <p class="intro-body-text">
-                    <strong>🎮 당신의 플레이 스타일은?</strong><br>
-                    게임을 즐기는 방식은 사람마다 다릅니다. 누군가는 목표를 세우고 효율적으로 성장하는 것을 좋아하고, 누군가는 새로운 콘텐츠를 탐험하며 예상치 못한 재미를 찾습니다. 또 누군가는 친구들과 함께하는 순간에서 가장 큰 즐거움을 느끼기도 합니다.
-                </p>
-
-                <div class="recommend-box">
-                    <div class="recommend-title">✔ 이런 분들께 추천해요!</div>
-                    <ul class="recommend-list">
-                        <li>- 게임을 즐기는 모든 사람</li>
-                        <li>- 내 플레이 스타일이 궁금한 사람</li>
-                        <li>- 친구들과 결과를 비교해보고 싶은 사람</li>
-                        <li>- 나와 가장 닮은 PC카페 메뉴를 찾아보고 싶은 사람</li>
-                    </ul>
-                </div>
-
-                <p class="intro-footer-bold">간단한 7개의 질문을 통해 당신의 게임 성향과 가장 닮은 메뉴를 찾아보세요!</p>
-                
-                <button class="btn-action" onclick="startTest()">이벤트 참여하기</button>
-                <button class="btn-reset" style="margin-top: 12px; padding: 12px;" onclick="scrollToPreview()">메뉴 유형 미리보기 👇</button>
+            <div class="gender-container">
+                <div id="gender-m" class="gender-option" onclick="selectGender('male')">👦 남성</div>
+                <div id="gender-f" class="gender-option" onclick="selectGender('female')">👧 여성</div>
             </div>
 
-            <div id="gender-page" class="page">
-                <h2 class="gender-title-bold">성별 선택</h2>
-                <p class="gender-desc-thin">정확한 통계 집계를 위해 성별을 선택해 주세요.</p>
-                
-                <div class="gender-container">
-                    <div id="gender-m" class="gender-option" onclick="selectGender('male')">👦 남성</div>
-                    <div id="gender-f" class="gender-option" onclick="selectGender('female')">👧 여성</div>
-                </div>
-
-                <button class="btn-next" onclick="goToQuestion()">다음 단계로 ➡️</button>
-            </div>
-
-            <div id="question-page" class="page">
-                <div class="progress-container">
-                    <div id="progress" class="progress-bar"></div>
-                </div>
-                <div id="question-text"></div>
-                <div id="options" class="options-container"></div>
-                <button class="btn-prev" onclick="prevQuestion()">⬅️ 이전 질문으로</button>
-            </div>
-
-            <div id="result-page" class="page">
-                <p class="result-title">나의 게임 성향 분석 결과</p>
-                <h2 id="result-type-text" class="result-type">-</h2>
-                <div id="result-headline-text" class="result-headline">-</div>
-                
-                <div id="result-analysis-text" class="result-analysis">-</div>
-                
-                <ul id="result-checklist-ul" class="result-checklist-ul"></ul>
-
-                <div id="result-drink-box" class="result-drink-box"></div>
-
-                <div style="margin-top: 40px;">
-                    <div id="total-count-ui" class="stats-title">🔥 현재 총 참여자 수: 집계 중...</div>
-                    <div class="stats-grid">
-                        <div>
-                            <div class="stat-row">
-                                <div class="stat-label"><span>남성 참여율</span><span id="ratio-m-text">0%</span></div>
-                                <div class="stat-track"><div id="bar-m" class="stat-fill" style="background:#1C03E1;"></div></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="stat-row">
-                                <div class="stat-label"><span>여성 참여율</span><span id="ratio-f-text">0%</span></div>
-                                <div class="stat-track"><div id="bar-f" class="stat-fill" style="background:#FF69B4;"></div></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="stats-grid" style="margin-top: 10px;">
-                        <div style="grid-column: 1 / -1;">
-                            <div class="stat-row">
-                                <div class="stat-label"><span>직화 삼겹제육덮밥형</span><span id="ratio-j-text">0%</span></div>
-                                <div class="stat-track"><div id="bar-j" class="stat-fill jeiyuk"></div></div>
-                            </div>
-                            <div class="stat-row">
-                                <div class="stat-label"><span>로제떡볶이형</span><span id="ratio-r-text">0%</span></div>
-                                <div class="stat-track"><div id="bar-r" class="stat-fill rose"></div></div>
-                            </div>
-                            <div class="stat-row">
-                                <div class="stat-label"><span>순살치킨형</span><span id="ratio-c-text">0%</span></div>
-                                <div class="stat-track"><div id="bar-c" class="stat-fill chicken"></div></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn-action" style="margin-top: 35px;" onclick="resetAll()">처음으로 돌아가기</button>
-                
-                <div class="test-partner-logos">
-                    <img src="logo-cube.png" alt="CUBE">
-                    <img src="logo-zowie.png" alt="ZOWIE">
-                </div>
-            </div>
-
+            <button class="btn-action" onclick="goToQuestion()">이벤트 참여하기</button>
         </div>
-    </div>
 
-    <div id="preview-section" class="preview-section">
-        <h2 class="preview-title">😋 게임 성향별 메뉴 유형 미리보기</h2>
-        <div class="preview-container">
-            <div class="preview-card">
-                <div>
-                    <div class="preview-name">🍖 직화 삼겹제육덮밥형 플레이어</div>
-                    <div class="preview-sub-title">한 줄 소개</div>
-                    <div class="preview-text" style="color:#FFD700; font-weight:bold;">목표가 생기면 끝까지 달리는 승부사</div>
-                    <div class="preview-sub-title">성향 분석</div>
-                    <div class="preview-text">목표를 향해 꾸준히 성장하는 것을 즐기는 전략형 플레이어입니다. 무작정 플레이하기보다 목표를 세우고, 효율적인 방법을 찾아 차근차근 달성하는 과정에서 재미를 느깁니다. 공략을 참고하거나 최적의 전략을 고민하며, 실력을 키워가는 과정 자체를 즐기는 성향입니다.</div>
-                    <div class="preview-sub-title">이런 모습이 자주 보입니다.</div>
-                    <ul class="checklist">
-                        <li>✔ 목표를 세우고 플레이한다.</li>
-                        <li>✔ 공략을 자주 찾아본다.</li>
-                        <li>✔ 성장 과정을 즐긴다.</li>
-                        <li>✔ 효율적인 플레이를 선호한다.</li>
-                    </ul>
-                </div>
-                <div class="drink-tag-container">
-                    <div class="drink-tag">닮은 음료: ☕ 아이스 아메리카노</div>
-                    <div class="drink-desc">깔끔하고 확실한 선택을 선호하는 성향과 잘 어울리는 음료입니다.</div>
-                </div>
+        <div id="question-page" class="page">
+            <div class="progress-container">
+                <div id="progress" class="progress-bar"></div>
             </div>
-            <div class="preview-card">
-                <div>
-                    <div class="preview-name">🌶️ 로제떡볶이형 플레이어</div>
-                    <div class="preview-sub-title">한 줄 소개</div>
-                    <div class="preview-text" style="color:#FFD700; font-weight:bold;">새로운 재미를 찾아다니는 모험가</div>
-                    <div class="preview-sub-title">성향 분석</div>
-                    <div class="preview-text">새로운 경험과 도전을 즐기는 탐험형 플레이어입니다. 정답을 따라가기보다 직접 경험하며 자신만의 플레이 방식을 만들어갑니다. 새로운 콘텐츠를 발견하거나 예상치 못한 상황을 마주하는 것조차 하나의 재미로 받아들이며, 다양한 시도를 즐기는 성향입니다.</div>
-                    <div class="preview-sub-title">이런 모습이 자주 보입니다.</div>
-                    <ul class="checklist">
-                        <li>✔ 새로운 콘텐츠를 좋아한다.</li>
-                        <li>✔ 호기심이 많다.</li>
-                        <li>✔ 직접 경험하는 것을 선호한다.</li>
-                        <li>✔ 새로운 도전을 즐긴다.</li>
-                    </ul>
-                </div>
-                <div class="drink-tag-container">
-                    <div class="drink-tag">닮은 음료: 🫐 블루레몬 에이드</div>
-                    <div class="drink-desc">톡톡 튀는 개성과 새로운 경험을 좋아하는 성향과 잘 어울리는 음료입니다.</div>
-                </div>
-            </div>
-            <div class="preview-card">
-                <div>
-                    <div class="preview-name">🍗 순살치킨형 플레이어</div>
-                    <div class="preview-sub-title">한 줄 소개</div>
-                    <div class="preview-text" style="color:#FFD700; font-weight:bold;">혼자보다 함께일 때 더 즐거운 플레이어</div>
-                    <div class="preview-sub-title">성향 분석</div>
-                    <div class="preview-text">사람들과 함께하는 시간을 가장 중요하게 생각하는 협동형 플레이어입니다. 승패보다 함께 웃고 즐기는 과정을 더욱 소중하게 여기며, 자연스럽게 분위기를 만들고 팀원들과 협력하는 플레이를 선호합니다. 함께한 경험과 추억이 게임의 가장 큰 즐거움이 되는 성향입니다.</div>
-                    <div class="preview-sub-title">이런 모습이 자주 보입니다.</div>
-                    <ul class="checklist">
-                        <li>✔ 친구들과 함께하는 게임을 좋아한다.</li>
-                        <li>✔ 협동 플레이를 즐긴다.</li>
-                        <li>✔ 분위기를 중요하게 생각한다.</li>
-                        <li>✔ 사람들과 소통하는 것을 좋아한다.</li>
-                    </ul>
-                </div>
-                <div class="drink-tag-container">
-                    <div class="drink-tag">닮은 음료: 🍓 딸기 스무디</div>
-                    <div class="drink-desc">달콤하고 부드러운 매력으로 누구에게나 친근하게 다가가는 성향과 잘 어울리는 음료입니다.</div>
-                </div>
-            </div>
+            <div id="question-number" class="question-number"></div>
+            <div id="question-text" class="question-text"></div>
+            <div id="options" class="options-container"></div>
         </div>
-    </div>
 
-    <footer>
-        <img src="logo-cube.png" alt="CUBE">
-        <img src="logo-zowie.png" alt="ZOWIE">
-    </footer>
+        <div id="result-page" class="page">
+            <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 10px;">퀴즈 종료!</h2>
+            <div id="score-display" class="score-display">0 / 3</div>
+            
+            <div id="feedback-list" class="feedback-list"></div>
+            
+            <button class="btn-action" style="margin-top: 15px;" onclick="resetQuiz()">처음으로 돌아가기</button>
+        </div>
+
+    </div>
 
     <script>
-        const questions = [
+        // 무손실 정답형 퀴즈 데이터 구조 정의
+        const quizData = [
             {
-                q: "새로운 게임을 시작했을 때, 당신은?",
-                example: "",
-                options: [
-                    { text: "공략이나 정보를 찾아보고 준비한다.", type: "제육" },
-                    { text: "일단 시작하고 몸으로 부딪혀 본다.", type: "로제" },
-                    { text: "같이 할 친구가 있는지 먼저 확인한다.", type: "치킨" }
-                ]
+                q: "이번 '2026 큐챔스' 오프라인 본선이 치러지는 장소이자, 벤큐 조위(ZOWIE)의 프로급 프리미엄 게이밍 기어 라인업을 직접 체험할 수 있도록 구축된 이 전용 좌석 공간의 이름은 무엇일까요?",
+                options: ["벤큐 랜드", "조위존 (ZOWIE ZONE)", "큐브 스튜디오", "옵티멈 스페이스"],
+                answer: 1, 
+                expl: "오프라인 본선 현장 내에서 최고의 몰입감을 선사하도록 벤큐 조위 기어로만 구성된 전용 프리미엄 체험 공간의 공식 명칭은 '조위존 (ZOWIE ZONE)' 입니다."
             },
             {
-                q: "게임 이벤트가 시작되었다.",
-                example: "",
-                options: [
-                    { text: "보상과 참여 조건부터 확인한다.", type: "제육" },
-                    { text: "누구랑 같이 참여하면 재밌을지 생각한다.", type: "치킨" },
-                    { text: "일단 들어가서 구경해본다.", type: "로제" }
-                ]
+                q: "조위(ZOWIE) 게이밍 모니터에 탑재된 독점 기술로, 화면이 격렬하게 전환되는 상황에서도 잔상을 완벽하게 제거하여, 눈으로 볼 때 이미지가 안정적으로 보이도록 돕는 이 기술의 이름은 무엇일까요?",
+                options: ["DyAc™ (다이악)", "Acrobatic", "Commander", "Line Breaker"],
+                answer: 0, 
+                expl: "DyAc™(Dynamic Accuracy)는 벤큐 조위만의 독점 디스플레이 동적 정확도 향상 기술로, FPS 게임 등의 격렬한 마우스 화면 전환 중 시각적 잔상을 획기적으로 줄여줍니다."
             },
             {
-                q: "게임을 하다가 예상치 못한 상황이 발생했다.\n당신은?",
-                example: "예시)\n갑자기 어려운 보스가 등장했다.\n예상하지 못한 변수(버그 등)로 게임이 꼬였다.",
-                options: [
-                    { text: "왜 이런 상황이 발생했는지 원인을 찾는다.", type: "제육" },
-                    { text: "오히려 승부욕이 불타서 이것저것 시도해본다.", type: "로제" },
-                    { text: "친구들과 이야기하며 같이 해결한다.", type: "치킨" }
-                ]
-            },
-            {
-                q: "게임을 마친 후 가장 기억에 남는 것은?",
-                example: "",
-                options: [
-                    { text: "목표를 달성했던 순간", type: "제육" },
-                    { text: "함께 플레이하며 웃었던 순간", type: "치킨" },
-                    { text: "예상하지 못했던 특별한 경험", type: "로제" }
-                ]
-            },
-            {
-                q: "게임을 플레이하던 중 중요한 선택의 순간이 찾아왔다.\n당신은?",
-                example: "예시)\n새로운 장비나 캐릭터의 육성 방향을 결정해야 한다.\n어떤 전략을 사용할지 선택해야 한다.\n여러 선택지 중 하나를 결정해야 하는 상황이다.",
-                options: [
-                    { text: "정보를 찾아보며 가장 효율적인 선택을 한다.", type: "제육" },
-                    { text: "직접 해보면서 내 플레이 스타일에 맞는 방법을 찾는다.", type: "로제" },
-                    { text: "친구들의 의견을 듣거나 함께 결정한다.", type: "치킨" }
-                ]
-            },
-            {
-                q: "게임을 오래 하다 보면 어떤 플레이를 선호하게 되는가?",
-                example: "",
-                options: [
-                    { text: "목표를 정하고 하나씩 달성하는 플레이", type: "제육" },
-                    { text: "새로운 방식 and 도전을 시도하는 플레이", type: "로제" },
-                    { text: "친구들과 함께 즐기는 플레이", type: "치킨" }
-                ]
-            },
-            {
-                q: "게임 속 내 포지션은?",
-                example: "",
-                options: [
-                    { text: "팀의 방향을 정하고 전략을 고민하는 리더형", type: "제육" },
-                    { text: "새로운 시도를 즐기며 변수를 만드는 플레이어", type: "로제" },
-                    { text: "팀원들과 소통하며 분위기를 만드는 플레이어", type: "치킨" }
-                ]
+                q: "현재 이용 중이신 조위존 2인실에 장착되어 있는 장비로, 최고급 오디오 칩셋을 통해 일반 PC와는 차원이 다른 풍부하고 디테일한 하이엔드 입체 사운드를 만끽할 수 있도록 돕는 사운드카드의 명칭은 무엇일까요?",
+                options: ["사운드 블라스터 (Sound Blaster)", "조위 오디오", "큐챔스 볼륨", "벤큐 사운드"],
+                answer: 0, 
+                expl: "조위존 2인실에는 글로벌 명품 하이엔드 오디오 칩셋 하드웨어인 '사운드 블라스터 (Sound Blaster)' 외장 사운드카드가 내장되어 있어 폭발적인 공간 음향을 선사합니다."
             }
         ];
 
-        const resultData = {
-            "제육": {
-                title: "🍖 직화 삼겹제육덮밥형 플레이어",
-                headline: "목표가 생기면 끝까지 달리는 승부사",
-                analysis: "당신은 게임을 할 때 성장과 성취를 중요하게 생각하는 타입입니다.\n\n무작정 플레이하기보다는 목표를 세우고,\n효율적인 방법을 찾아 차근차근 달성해 나가는 과정에서 즐거움을 느깁니다.\n\n공략을 찾아보거나,\n최적의 전략을 고민하고,\n실력을 향상시키는 과정 자체가 재미인 플레이어입니다.",
-                checklist: ["목표를 세우고 플레이한다.", "공략을 자주 찾아본다.", "성장 과정을 즐깁니다.", "효율적인 플레이를 선호합니다."],
-                drink: "☕ 아이스 아메리카노",
-                drinkDesc: "깔끔하고 확실한 선택을 선호하는 당신처럼,\n많은 사람들이 찾는 대표 메뉴입니다."
-            },
-            "로제": {
-                title: "🌶️ 로제떡볶이형 플레이어",
-                headline: "새로운 재미를 찾아다니는 모험가",
-                analysis: "당신은 정답보다 경험을 중요하게 생각합니다.\n\n새로운 콘텐츠를 발견하거나,\n남들이 하지 않는 플레이를 시도하고,\n직접 경험하며 배우는 과정에서 즐거움을 느깁니다.\n\n예상치 못한 변수도 하나의 재미로 받아들이며,\n도전을 즐기는 플레이어입니다.",
-                checklist: ["새로운 콘텐츠를 좋아합니다.", "호기심이 많습니다.", "직접 경험하는 것을 선호합니다.", "도전을 즐깁니다."],
-                drink: "🫐 블루레몬 에이드",
-                drinkDesc: "톡톡 튀는 매력과 새로운 즐거움을 추구하는 당신과 닮았습니다."
-            },
-            "치킨": {
-                title: "🍗 순살치킨형 플레이어",
-                headline: "혼자보다 함께일 때 더 즐거운 플레이어",
-                analysis: "당신에게 게임은 사람들과 함께하는 경험입니다.\n\n승패도 중요하지만,\n함께 웃고 떠들며 추억을 만드는 순간을 더욱 소중하게 생각합니다.\n\n게임 속에서도 자연스럽게 분위기를 만들고,\n주변 사람들을 챙기는 역할을 맡는 경우가 많습니다.",
-                checklist: ["친구들과 함께하는 게임을 좋아합니다.", "협동 플레이를 즐깁니다.", "분위기를 중요하게 생각합니다.", "사람들과 소통하는 것을 좋아합니다."],
-                drink: "🍓 딸기 스무디",
-                drinkDesc: "달콤하고 부드러운 매력처럼,\n주변 사람들을 편하게 만드는 당신과 닮았습니다."
-            }
-        };
-
-        let _supabase = null;
-        let userGender = "";
         let currentIdx = 0;
-        let selections = [];
+        let userAnswers = [];
+        let selectedGender = "";
+        let _supabase = null;
 
-        // 빌트인 완료된 새 수파베이스 크레덴셜
+        // 실시간 전송용 프로젝트 크레덴셜 (입력 완료)
         const SUPABASE_URL = "https://xivbwdmwvsujbbblmoze.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpdmJ3ZG13dnN1amJiYmxtb3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NzA0ODksImV4cCI6MjA5OTI0NjQ4OX0.kYmNkDI2CJvgThPRWCUD3Sm8rlzydtwMPtsHLYiEbhE";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpvbndkbXd2c3VqYmJibG1vemUiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4MzY3MDQ4OSwiZXhwIjoyMDk5MjQ2NDg5fQ.kYmNkDI2CJvgThPRWCUD3Sm8rlzydtwMPtsHLYiEbhE";
 
         window.addEventListener('DOMContentLoaded', () => {
             try {
@@ -799,14 +283,9 @@
                     _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 }
             } catch (e) {
-                console.error("수파베이스 인스턴스 초기화 에러:", e.message);
+                console.error("Supabase 초기화 에러:", e.message);
             }
         });
-
-        function scrollToPreview() {
-            const section = document.getElementById('preview-section');
-            if (section) section.scrollIntoView({ behavior: 'smooth' });
-        }
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -815,10 +294,8 @@
             window.scrollTo(0, 0);
         }
 
-        function startTest() { showPage('gender-page'); }
-
         function selectGender(gender) {
-            userGender = gender;
+            selectedGender = gender;
             document.getElementById('gender-m').classList.remove('selected');
             document.getElementById('gender-f').classList.remove('selected');
             if (gender === 'male') document.getElementById('gender-m').classList.add('selected');
@@ -826,181 +303,105 @@
         }
 
         function goToQuestion() {
-            if (!userGender) { alert("성별을 선택해주세요!"); return; }
-            currentIdx = 0; selections = [];
+            if (!selectedGender) {
+                alert("성별을 먼저 선택해주세요!");
+                return;
+            }
+            currentIdx = 0;
+            userAnswers = [];
             showPage('question-page');
             renderQuestion();
         }
 
         function renderQuestion() {
-            const qData = questions[currentIdx];
-            document.getElementById('progress').style.width = (currentIdx / questions.length) * 100 + "%";
+            const qData = quizData[currentIdx];
+            const progressPercent = (currentIdx / quizData.length) * 100;
+            document.getElementById('progress').style.width = progressPercent + "%";
             
-            const qTextContainer = document.getElementById('question-text');
-            qTextContainer.innerHTML = "";
+            document.getElementById('question-number').innerText = "Q" + (currentIdx + 1) + ".";
+            document.getElementById('question-text').innerText = qData.q;
             
-            const qNumberBlock = document.createElement('div');
-            qNumberBlock.style.color = "#7BFD57";
-            qNumberBlock.style.fontSize = "24px";
-            qNumberBlock.style.fontWeight = "800";
-            qNumberBlock.style.marginBottom = "6px";
-            qNumberBlock.innerText = "질문 " + (currentIdx + 1) + ".";
-            qTextContainer.appendChild(qNumberBlock);
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = "";
             
-            const qTitleBlock = document.createElement('div');
-            qTitleBlock.style.color = "#FFFFFF";
-            qTitleBlock.style.fontSize = "24px";
-            qTitleBlock.style.fontWeight = "800";
-            qTitleBlock.style.whiteSpace = "pre-line";
-            qTitleBlock.innerText = qData.q;
-            qTextContainer.appendChild(qTitleBlock);
-            
-            if(qData.example && qData.example.trim() !== "") {
-                const exampleBlock = document.createElement('div');
-                exampleBlock.style.fontSize = "15px";
-                exampleBlock.style.fontWeight = "400";
-                exampleBlock.style.color = "#FFFFFF";
-                exampleBlock.style.marginTop = "14px";
-                exampleBlock.style.lineHeight = "1.6";
-                exampleBlock.style.whiteSpace = "pre-line";
-                exampleBlock.innerText = qData.example;
-                qTextContainer.appendChild(exampleBlock);
-            }
-
-            let optionsCopy = [...qData.options];
-            optionsCopy.sort(() => Math.random() - 0.5);
-            
-            const container = document.getElementById('options');
-            container.innerHTML = "";
-            
-            optionsCopy.forEach(opt => {
+            qData.options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
                 btn.className = "option-btn";
-                btn.innerText = opt.text;
-                btn.onclick = () => selectOption(opt.type);
-                container.appendChild(btn);
+                btn.innerText = (idx + 1) + ". " + opt;
+                btn.onclick = () => selectOption(idx);
+                optionsContainer.appendChild(btn);
             });
         }
 
-        function selectOption(type) {
-            selections[currentIdx] = type;
-            if (currentIdx < questions.length - 1) {
-                currentIdx++; renderQuestion();
+        function selectOption(selectedIdx) {
+            userAnswers.push(selectedIdx);
+            if (currentIdx < quizData.length - 1) {
+                currentIdx++;
+                renderQuestion();
             } else {
-                calculateAndUploadResult();
+                calculateAndUploadQuizResult();
             }
         }
 
-        function prevQuestion() {
-            if (currentIdx > 0) {
-                currentIdx--; renderQuestion();
-            } else {
-                showPage('gender-page');
-            }
-        }
-
-        async function calculateAndUploadResult() {
-            const countMap = { "제육": 0, "로제": 0, "치킨": 0 };
-            selections.forEach(type => { if (countMap[type] !== undefined) countMap[type]++; });
+        async function calculateAndUploadQuizResult() {
+            let correctCount = 0;
+            quizData.forEach((item, idx) => {
+                if (userAnswers[idx] === item.answer) correctCount++;
+            });
             
-            let finalType = "제육";
-            let maxCount = countMap["제육"];
-            if (countMap["로제"] > maxCount) { finalType = "로제"; maxCount = countMap["로제"]; }
-            if (countMap["치킨"] > maxCount) { finalType = "치킨"; }
+            const scoreString = `${correctCount} / ${quizData.length}`;
+            document.getElementById('score-display').innerText = scoreString;
             
-            displayResult(finalType);
+            displayDetailedFeedback();
             showPage('result-page');
             
             if (_supabase) {
                 try {
-                    const korGender = userGender === 'male' ? '남성' : '여성';
-                    const korType = resultData[finalType].title;
-                    
+                    const korGender = selectedGender === 'male' ? '남성' : '여성';
+                    // 수동 세팅 완료하신 테이블 및 컬럼 매칭 (트랜잭션 에러 유발 원인 완전 제거)
                     await _supabase.from('test_results').insert([{ 
-                        gender: korGender, 
-                        result_type: korType 
+                        gender: korGender,
+                        result_type: scoreString
                     }]);
-                    await fetchAndRenderStats();
                 } catch (err) {
                     console.error("데이터 저장 실패:", err.message);
-                    useDummyStats();
                 }
-            } else {
-                useDummyStats();
             }
         }
 
-        function displayResult(type) {
-            const data = resultData[type];
-            document.getElementById('result-type-text').innerText = data.title;
-            document.getElementById('result-headline-text').innerText = data.headline;
-            document.getElementById('result-analysis-text').innerText = data.analysis;
+        function displayDetailedFeedback() {
+            const listContainer = document.getElementById('feedback-list');
+            listContainer.innerHTML = "";
             
-            document.getElementById('result-checklist-ul').innerHTML = data.checklist.map(item => `<li>✔ ${item}</li>`).join('');
-            
-            document.getElementById('result-drink-box').innerHTML = 
-                '<span class="drink-tag">당신과 닮은 음료: ' + data.drink + '</span>' +
-                '<p class="drink-desc">' + data.drinkDesc.replace(/\n/g, '<br>') + '</p>';
-        }
-
-        async function fetchAndRenderStats() {
-            if (!_supabase) { useDummyStats(); return; }
-            try {
-                const { data, error } = await _supabase.from('test_results').select('gender, result_type');
-                if (error) throw error;
+            quizData.forEach((item, idx) => {
+                const isCorrect = userAnswers[idx] === item.answer;
                 
-                if (data && data.length > 0) {
-                    const total = data.length;
-                    document.getElementById('total-count-ui').innerText = "🔥 현재 총 참여자 수: " + total + "명";
-                    
-                    let mCount = 0, fCount = 0, jCount = 0, rCount = 0, cCount = 0;
-                    data.forEach(row => {
-                        if (row.gender === '남성') mCount++;
-                        else if (row.gender === '여성') fCount++;
-                        
-                        if (row.result_type && row.result_type.includes('제육')) jCount++;
-                        else if (row.result_type && row.result_type.includes('로제')) rCount++;
-                        else if (row.result_type && row.result_type.includes('치킨')) cCount++;
-                    });
-                    renderBars(total, mCount, fCount, jCount, rCount, cCount);
-                } else {
-                    useDummyStats();
-                }
-            } catch (err) {
-                useDummyStats();
-            }
+                const card = document.createElement('div');
+                card.className = "feedback-card";
+                
+                const qTitle = document.createElement('div');
+                qTitle.className = "feedback-q";
+                qTitle.innerText = "Q" + (idx + 1) + ". " + item.q;
+                
+                const status = document.createElement('div');
+                status.className = "feedback-status " + (isCorrect ? "correct" : "incorrect");
+                status.innerText = isCorrect ? "▶ 정답입니다! 🎉" : "▶ 오답 (내 선택: " + (userAnswers[idx]+1) + "번 / 정답: " + (item.answer+1) + "번)";
+                
+                const expl = document.createElement('div');
+                expl.className = "feedback-expl";
+                expl.innerText = "해설: " + item.expl;
+                
+                card.appendChild(qTitle);
+                card.appendChild(status);
+                card.appendChild(expl);
+                listContainer.appendChild(card);
+            });
         }
 
-        function useDummyStats() {
-            document.getElementById('total-count-ui').innerText = "🔥 현재 총 참여자 수: 1명 (테스트 모드)";
-            renderBars(1, userGender==='male'?1:0, userGender==='female'?1:0, 1, 0, 0);
-        }
-
-        function renderBars(total, mCount, fCount, jCount, rCount, cCount) {
-            const mRatio = Math.round((mCount / total) * 100) || 0;
-            const fRatio = Math.round((fCount / total) * 100) || 0;
-            const jRatio = Math.round((jCount / total) * 100) || 0;
-            const rRatio = Math.round((rCount / total) * 100) || 0;
-            const cRatio = Math.round((cCount / total) * 100) || 0;
-            
-            document.getElementById('ratio-m-text').innerText = mRatio + "%";
-            document.getElementById('ratio-f-text').innerText = fRatio + "%";
-            document.getElementById('ratio-j-text').innerText = jRatio + "%";
-            document.getElementById('ratio-r-text').innerText = rRatio + "%";
-            document.getElementById('ratio-c-text').innerText = cRatio + "%";
-            
-            document.getElementById('bar-m').style.width = mRatio + "%";
-            document.getElementById('bar-f').style.width = fRatio + "%";
-            document.getElementById('bar-j').style.width = jRatio + "%";
-            document.getElementById('bar-r').style.width = rRatio + "%";
-            document.getElementById('bar-c').style.width = cRatio + "%";
-        }
-
-        function resetAll() {
-            userGender = ""; currentIdx = 0; selections = [];
+        function resetQuiz() {
+            selectedGender = "";
             document.getElementById('gender-m').classList.remove('selected');
             document.getElementById('gender-f').classList.remove('selected');
-            document.getElementById('progress').style.width = '0%';
             showPage('home-page');
         }
     </script>
