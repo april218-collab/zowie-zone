@@ -109,8 +109,9 @@
     </div>
 
     <script>
+        // 최신 발급 주소 및 복사 누락 없는 진짜 원본 anon 퍼블릭 키 매핑
         const SUPABASE_URL = "https://xivbwdmwvsujbbblmoze.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpdmJ3ZG13dnN1amJiYmxtb3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NzA0ODksImV4cCI6MjA5OTI0Mjg4N30.28DGW23cGI3ltvhRNhvvLk6SyJzeu2Xct_J81HCA1j0";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpdmJ3ZG13dnN1amJiYmxtb3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NzA0ODksImV4cCI6MjA5OTI0NjQ4OX0.kYmNkDI2CJvgThPRWCUD3Sm8rlzydtwMPtsHLYiEbhE";
         
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -118,7 +119,7 @@
         const questions = [
             {
                 q: "이번 '2026 큐챔스' 오프라인 본선이 치러지는 장소이자, 벤큐 조위(ZOWIE)의 프로급 프리미엄 게이밍 기어 라인업을 직접 체험할 수 있도록 구축된 이 전용 좌석 공간의 이름은 무엇일까요?",
-                options: ["벤큐 랜드", "조위존 (ZOWIE ZONE)", "큐브 스튜디오", "옵티멈 스페이스"],
+                options: ["벤큐 랜드", "조위존 (ZOWIE ZONE)", "큐브 스튜디오", "옵티мум 스페이스"],
                 answer: 1,
                 desc: "이번 본선 행사장 내부에는 벤큐 조위(ZOWIE)의 기어들을 직접 사용해볼 수 있는 '조위존(ZOWIE ZONE)'이 특별 마련되어 있습니다."
             },
@@ -248,13 +249,13 @@
                 explainContainer.appendChild(card);
             });
 
-            // 수파베이스 최신 테이블 연동 데이터 적재 (성별 추가 전송)
+            // 수파베이스 테이블 연동 (성별 + 결과값 통합 전송)
             try {
                 const { error } = await _supabase
                     .from('test_results')
                     .insert([
                         { 
-                            gender: userData.gender, // 선택한 성별 데이터 저장 ('남성' 또는 '여성')
+                            gender: userData.gender,
                             result_type: scoreString,
                             created_at: new Date().toISOString()
                         }
