@@ -3,304 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 큐챔스 X ZOWIE 퀴즈</title>
+    <title>큐챔스 x ZOWIE 퀴즈</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
-        
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background: linear-gradient(135deg, #0f0f12 0%, #1a1a24 100%);
-            min-height: 100vh;
-            color: #ffffff;
-        }
-
-        /* Glassmorphism Effect */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px rgba(255, 255, 255, 0.08) solid;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        /* ZOWIE Signature Color Variable */
-        .text-zowie {
-            color: #FF204E; /* 조위 테마 레드 컬러 */
-        }
-
-        /* custom styling for option button transitions */
-        .option-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .option-btn:hover {
-            background: rgba(255, 32, 78, 0.15);
-            border-color: #FF204E;
-            transform: translateY(-2px);
-        }
-
-        /* Hint section animation */
-        .hint-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-            opacity: 0;
-        }
-        .hint-content.open {
-            max-height: 100px;
-            opacity: 1;
-            margin-top: 8px;
+            background-color: #0f1115;
         }
     </style>
 </head>
-<body class="flex items-center justify-center p-4">
+<body class="text-gray-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="w-full max-w-md glass-panel rounded-2xl p-6 min-h-[580px] flex flex-col justify-between relative overflow-hidden">
-        
-        <div id="intro-page" class="flex-1 flex flex-col justify-between py-6">
-            <div class="text-center my-auto space-y-4">
-                <h1 class="text-3xl font-extrabold tracking-tight">
-                    <span class="text-zowie">ZOWIE</span> ZONE 알려존!
-                </h1>
-                <p class="text-gray-400 font-light text-sm tracking-wide">오프라인 현장 이벤트</p>
-            </div>
-            
-            <button onclick="startQuiz()" class="w-full bg-[#FF204E] hover:bg-[#d6143c] text-white font-bold py-4 px-6 rounded-xl shadow-lg transform active:scale-95 transition text-center cursor-pointer">
-                이벤트 참여하기
-            </button>
+    <div id="landing-page" class="w-full max-w-2xl bg-[#1a1d24] rounded-2xl shadow-2xl p-8 md:p-12 text-center border border-gray-800">
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white">
+            ZOWIE ZONE 알려존!
+        </h1>
+        <p class="text-lg md:text-xl font-light text-gray-400 mb-12 tracking-wide">
+            오프라인 현장 이벤트
+        </p>
+        <button id="start-btn" class="w-full md:w-auto px-12 py-4 bg-[#BA0C2F] hover:bg-[#990a26] text-white font-bold text-lg rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 duration-200 cursor-pointer">
+            이벤트 참여하기
+        </button>
+    </div>
+
+    <div id="quiz-page" class="w-full max-w-2xl bg-[#1a1d24] rounded-2xl shadow-2xl p-8 md:p-10 border border-gray-800 hidden">
+        <div class="text-center mb-8">
+            <span class="text-xs uppercase tracking-widest text-gray-500 font-semibold block mb-1">OFFLINE EVENT</span>
+            <h2 class="text-2xl md:text-3xl font-bold text-white">
+                큐챔스 x <span style="color: #BA0C2F;">ZOWIE</span> 퀴즈
+            </h2>
         </div>
 
-        <div id="quiz-page" class="hidden flex-1 flex flex-col justify-between">
-            <div>
-                <div class="mb-6">
-                    <div class="text-center text-xs font-medium text-gray-400 mb-2 tracking-wider">
-                        큐챔스 x <span class="text-zowie font-bold">ZOWIE</span> 퀴즈
-                    </div>
-                    <div class="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                        <div id="progress-bar" class="bg-[#FF204E] h-full transition-all duration-300" style="width: 33.3%;"></div>
-                    </div>
-                </div>
+        <div class="mb-8">
+            <div class="flex justify-between text-sm text-gray-400 mb-2">
+                <span id="progress-text" class="font-medium">문항 1 / 5</span>
+                <span id="progress-percent" class="font-bold text-gray-300">20%</span>
+            </div>
+            <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-[#BA0C2F] h-full transition-all duration-300" style="width: 20%"></div>
+            </div>
+        </div>
 
-                <div class="my-4">
-                    <span class="text-xs font-bold text-[#FF204E] uppercase tracking-widest bg-[#FF204E]/10 px-2.5 py-1 rounded-md" id="question-number">Q1</span>
-                    <h2 class="text-xl font-bold mt-3 leading-snug word-break" id="question-text">
-                        질문 로딩중...
-                    </h2>
-                </div>
-
-                <div class="mb-6 bg-white/5 rounded-xl p-3 border border-white/5">
-                    <button onclick="toggleHint()" id="hint-toggle-btn" class="text-xs text-gray-400 hover:text-white flex items-center justify-between w-full focus:outline-none cursor-pointer">
-                        <span>💡 힌트 가 숨겨져 있습니다. (클릭해서 보기)</span>
-                        <span id="hint-icon" class="transition-transform duration-200">▼</span>
-                    </button>
-                    <div id="hint-container" class="hint-content text-sm text-gray-300 pl-1 font-light leading-relaxed">
-                        힌트 내용
-                    </div>
-                </div>
-
-                <div class="space-y-3" id="options-container">
-                    </div>
+        <div class="space-y-6">
+            <div id="question-container" class="bg-[#14161d] p-6 rounded-xl border border-gray-800">
+                <h3 id="question-text" class="text-xl md:text-2xl font-bold text-white leading-relaxed">
+                    질문을 불러오는 중입니다...
+                </h3>
             </div>
 
-            <div class="mt-6 pt-4 border-t border-white/5 flex justify-center">
-                <button onclick="prevQuestion()" class="text-xs text-gray-400 hover:text-white flex items-center gap-1.5 transition px-4 py-2 rounded-lg hover:bg-white/5 cursor-pointer">
-                    ⬅️ 이전 문제로
+            <div id="options-container" class="grid grid-cols-1 gap-4">
+                </div>
+
+            <div id="hint-container" class="bg-gray-900/50 p-4 rounded-xl border border-dashed border-gray-800 text-sm text-gray-400 leading-relaxed">
+                <span class="font-bold text-gray-300 block mb-1">💡 HINT</span>
+                <p id="hint-text">힌트 내용이 이곳에 표시됩니다.</p>
+            </div>
+
+            <div class="pt-4 flex justify-between items-center">
+                <button id="prev-btn" class="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-sm font-medium text-gray-300 rounded-lg border border-gray-700 transition-colors cursor-pointer hidden">
+                    ← 이전 문제로
                 </button>
+                <div class="flex-1"></div>
             </div>
         </div>
+    </div>
 
-        <div id="result-page" class="hidden flex-1 flex flex-col justify-between py-4">
-            <div class="text-center my-auto space-y-6">
-                <div class="inline-flex p-4 bg-[#FF204E]/10 rounded-full text-[#FF204E] text-4xl mb-2 animate-bounce">
-                    🏆
-                </div>
-                <h2 class="text-2xl font-bold">퀴즈 완료!</h2>
-                
-                <div class="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <p class="text-gray-400 text-sm">당신의 최종 점수는?</p>
-                    <p class="text-4xl font-extrabold text-[#FF204E] mt-2" id="score-text">0 / 3</p>
-                </div>
-                
-                <p class="text-sm text-gray-400 px-4">
-                    축하합니다! 화면을 현장 스태프에게 인증하고 경품을 수령하세요.
-                </p>
-            </div>
-
-            <button onclick="resetQuiz()" class="w-full bg-white/10 hover:bg-white/10 text-white font-medium py-3.5 px-6 rounded-xl border border-white/10 transition text-center cursor-pointer">
-                처음으로 돌아가기
-            </button>
+    <div id="result-page" class="w-full max-w-2xl bg-[#1a1d24] rounded-2xl shadow-2xl p-8 md:p-12 text-center border border-gray-800 hidden">
+        <div class="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/20">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
         </div>
-
+        <h2 class="text-3xl font-bold text-white mb-4">테스트 완료!</h2>
+        <p class="text-gray-400 mb-8 leading-relaxed">
+            답안 처리가 안전하게 완료되었습니다.<br>현장 운영 스태프에게 이 화면을 보여주세요.
+        </p>
+        <div class="bg-[#14161d] p-4 rounded-xl border border-gray-800 max-w-sm mx-auto">
+            <span class="text-xs text-gray-500 block mb-1">제출 상태</span>
+            <span class="text-sm font-bold text-green-400">수파베이스 데이터 적재 성공</span>
+        </div>
     </div>
 
     <script>
-        // --- 1. 수파베이스 (Supabase) 설정 정보 고정 ---
-        const SUPABASE_URL = "https://qaiujvaydoowubvnvace.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhaXVqdmayZG9vd3Vidm52YWNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NjY4ODcsImV4cCI6MjA5OTI0Mjg4N30.28DGW23cGI3ltvhRNhvvLk6SyJzeu2Xct_J81HCA1j0";
+        // 최신 수파베이스(Supabase) 연동 설정 적용
+        const SUPABASE_URL = "https://xivbwdmwvsujbbblmoze.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpdmJ3ZG13dnN1amJiYmxtb3plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NzA0ODksImV4cCI6MjA5OTI0NjQ4OX0.kYmNkDI2CJvgThPRWCUD3Sm8rlzydtwMPtsHLYiEbhE";
         
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabase = _supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // --- 2. 퀴즈 문항 데이터셋 (힌트 및 ZOWIE 컬러 하이라이트 반영) ---
-        // 'ZOWIE' 텍스트 부분만 조위 레드 컬러를 바인딩하기 위해 렌더링 시점에 가공 처리합니다.
-        const questions = [
+        // 테스트 문항 데이터 세팅 (ZOWIE 하이라이트를 배제하고 텍스트를 흰색으로 통일하기 위해 인라인 컬러 제거)
+        const quizData = [
             {
-                q: "이번 '2026 큐챔스' 오프라인 본선이 치러지는 장소이자, 벤큐 조위(ZOWIE)의 프로급 프리미엄 게이밍 기어 라인업을 직접 체험할 수 있도록 구축된 이 전용 좌석 공간의 이름은 무엇일까요?",
-                hint: "영어 알파벳 대문자로 구성된 전용 구역 공간의 이름이며, ZOWIE ZONE 이라는 수식어가 붙습니다.",
-                options: [
-                    { text: "① 벤큐 랜드", score: 0 },
-                    { text: "② 조위존 (ZOWIE ZONE)", score: 1 },
-                    { text: "③ 큐브 스튜디오", score: 0 },
-                    { text: "④ 옵티멈 스페이스", score: 0 }
-                ]
+                question: "1. 벤큐의 게이밍 전문 브랜드 ZOWIE에서 최초로 출시한 무선 게이밍 마우스의 시리즈 이름은 무엇일까요?",
+                options: ["EC-CW 시리즈", "FK-B 시리즈", "ZA-B 시리즈", "XL-K 시리즈"],
+                hint: "ZOWIE의 비대칭형 마우스 대표 라인업에 무선을 뜻하는 'W'가 결합되었습니다."
             },
             {
-                q: "조위(ZOWIE) 게이밍 모니터에 탑재된 독점 기술로, 화면이 격렬하게 전환되는 상황에서도 잔상을 완벽하게 제거하여, 눈으로 볼 때 이미지가 안정적으로 보이도록 돕는 이 기술의 이름은 무엇일까요?",
-                hint: "영어 알파벳 4글자로 구성되어 있으며, 다이악(DyAc)이라고 발음합니다.",
-                options: [
-                    { text: "① DyAc™ (다이악)", score: 1 },
-                    { text: "② Acrobatic", score: 0 },
-                    { text: "③ Commander", score: 0 },
-                    { text: "④ Line Breaker", score: 0 }
-                ]
+                question: "2. ZOWIE 게이밍 모니터(XL 시리즈)에 탑재되어, 잔상을 제거하고 역동적인 화면 전환을 부드럽게 만들어주는 벤큐 조위만의 독자적인 동적 잔상 제거 기술은?",
+                options: ["DyAc (Dynamic Accuracy)", "Black eQualizer", "Color Vibrance", "FreeSync"],
+                hint: "Dynamic Accuracy의 약자로, FPS 프로게이머들이 화면을 빠르게 전환할 때 타겟을 명확하게 조준할 수 있도록 돕는 핵심 기술입니다."
             },
             {
-                q: "현재 이용 중이신 조위존 2인실에 장착되어 있는 장비로, 최고급 오디오 칩셋을 통해 일반 PC와는 차원이 다른 풍부하고 디테일한 하이엔드 입체 사운드를 만끽할 수 있도록 돕는 사운드카드의 명칭은 무엇일까요?",
-                hint: "PC 주변기기가 아닌 사운드 명가 혹은 조위 자체 오디오 라인업과 구별되는 외장형 하드웨어 장치 이름입니다.",
-                options: [
-                    { text: "① 사운드 블라스터 (Sound Blaster)", score: 1 },
-                    { text: "② 조위 오디오", score: 0 },
-                    { text: "③ 큐챔스 볼륨", score: 0 },
-                    { text: "④ 벤큐 사운드", score: 0 }
-                ]
+                question: "3. 다음 중 ZOWIE 게이밍 모니터에서 어두운 암부 지역을 왜곡 없이 밝혀주어, 그늘이나 구석에 숨어있는 적을 더 잘 식별할 수 있도록 도와주는 기능의 명칭은 무엇일까요?",
+                options: ["Black eQualizer", "Color Vibrance", "DyAc+", "K-Locker"],
+                hint: "어두운 곳의 밝기만 조절하여 밝은 곳의 과노출을 막아주는 영리한 이퀄라이저 기능입니다."
+            },
+            {
+                question: "4. ZOWIE 마우스 패드 라인업 중, 부드러운 슬라이딩과 안정적인 브레이킹의 밸런스를 갖추어 많은 FPS 유저들에게 오랜 기간 사랑받아온 천 마우스 패드 시리즈는?",
+                options: ["G-SR 시리즈", "GTF-X 시리즈", "PTF-X 시리즈", "Z-SR 시리즈"],
+                hint: "균일하고 촘촘한 직물 구조를 지닌 조위의 베스트셀러 천 패드 표준 모델입니다."
+            },
+            {
+                question: "5. ZOWIE의 마우스 디자인 철학 중 가장 핵심이 되는 가치로, 전 세계 프로게이머들의 손 모양과 그립 방법을 연구하여 제품 개발에 반영하는 디자인 개념은?",
+                options: ["인체공학적 이스포츠 디자인 (Ergonomics)", "미니멀리즘 디자인", "RGB 게이밍 커스텀 디자인", "초경량화 하니컴 디자인"],
+                hint: "화려한 외관보다는 완벽한 그립감과 손목의 편안함을 최우선으로 생각하는 설계 철학입니다."
             }
         ];
 
-        // --- 3. 상태 제어 변수 ---
-        let currentIdx = 0;
-        let userAnswers = []; // 각 문항별 유저가 획득한 스코어 저장 배열
+        let currentStep = 0;
+        const userResponses = [];
 
-        // --- 4. 텍스트 바인딩 시 ZOWIE 단어 색상 변환 함수 ---
-        function formatZowieText(text) {
-            // '퀴즈'라는 글자 뒤에 오는 경우가 아닌 순수 'ZOWIE' 또는 '조위' 영단어들을 하이라이트 처리
-            return text.replace(/ZOWIE/g, '<span class="text-zowie font-extrabold">ZOWIE</span>');
-        }
+        // DOM 요소 정의
+        const landingPage = document.getElementById('landing-page');
+        const quizPage = document.getElementById('quiz-page');
+        const resultPage = document.getElementById('result-page');
+        
+        const startBtn = document.getElementById('start-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const hintText = document.getElementById('hint-text');
+        
+        const progressText = document.getElementById('progress-text');
+        const progressPercent = document.getElementById('progress-percent');
+        const progressBar = document.getElementById('progress-bar');
 
-        // --- 5. 화면 전환 함수 ---
-        function startQuiz() {
-            document.getElementById('intro-page').classList.add('hidden');
-            document.getElementById('quiz-page').classList.remove('hidden');
-            currentIdx = 0;
-            userAnswers = [];
-            renderQuestion();
-        }
+        // 이벤트 리스너: 시작하기
+        startBtn.onclick = () => {
+            landingPage.classList.add('hidden');
+            quizPage.classList.remove('hidden');
+            loadQuestion();
+        };
 
-        function toggleHint(forceClose = false) {
-            const hintContainer = document.getElementById('hint-container');
-            const hintIcon = document.getElementById('hint-icon');
-            const toggleBtn = document.getElementById('hint-toggle-btn');
-
-            if (hintContainer.classList.contains('open') || forceClose) {
-                hintContainer.classList.remove('open');
-                hintIcon.style.transform = 'rotate(0deg)';
-                toggleBtn.querySelector('span').innerText = '💡 힌트 가 숨겨져 있습니다. (클릭해서 보기)';
-            } else {
-                hintContainer.classList.add('open');
-                hintIcon.style.transform = 'rotate(180deg)';
-                toggleBtn.querySelector('span').innerText = '💡 힌트 내용을 확인 중입니다.';
+        // 이벤트 리스너: 이전 문제로 가기
+        prevBtn.onclick = () => {
+            if (currentStep > 0) {
+                currentStep--;
+                userResponses.pop(); // 직전 선택 내역 삭제
+                loadQuestion();
             }
-        }
+        };
 
-        // --- 6. 문제 렌더링 함수 ---
-        function renderQuestion() {
-            // 무조건 새 문제를 불러올 때는 힌트 창을 닫아둔 상태로 세팅
-            toggleHint(true);
+        // 문항 렌더링 함수
+        function loadQuestion() {
+            const currentQuiz = quizData[currentStep];
+            
+            // 1. 게이지 및 텍스트 업데이트
+            const total = quizData.length;
+            const progressValue = ((currentStep + 1) / total) * 100;
+            
+            progressText.innerText = `문항 ${currentStep + 1} / ${total}`;
+            progressPercent.innerText = `${Math.round(progressValue)}%`;
+            progressBar.style.width = `${progressValue}%`;
 
-            const currentQuestion = questions[currentIdx];
-            
-            // 상단 진행도 프로그레스 바 계산
-            const progressPercent = ((currentIdx + 1) / questions.length) * 100;
-            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
-            
-            // 문제 번호 및 텍스트 적용 (ZOWIE 영단어 컬러 가공 포함)
-            document.getElementById('question-number').innerText = `Q${currentIdx + 1}`;
-            document.getElementById('question-text').innerHTML = formatZowieText(currentQuestion.q);
-            document.getElementById('hint-container').innerHTML = formatZowieText(currentQuestion.hint);
-            
-            // 선택지 구성
-            const optionsContainer = document.getElementById('options-container');
+            // 2. [이전 문제로] 버튼 활성화 여부 제어
+            if (currentStep > 0) {
+                prevBtn.classList.remove('hidden');
+            } else {
+                prevBtn.classList.add('hidden');
+            }
+
+            // 3. 질문 및 힌트 텍스트 바인딩
+            questionText.innerText = currentQuiz.question;
+            hintText.innerText = currentQuiz.hint;
+
+            // 4. 선택지 버튼 생성
             optionsContainer.innerHTML = '';
-            
-            currentQuestion.options.forEach((opt, idx) => {
+            currentQuiz.options.forEach((option) => {
                 const btn = document.createElement('button');
-                btn.className = "w-full text-left option-btn p-4 rounded-xl text-sm font-medium cursor-pointer flex items-center justify-between";
-                btn.innerHTML = `<span>${formatZowieText(opt.text)}</span> <span class="text-white/20 text-xs">➔</span>`;
-                btn.onclick = () => selectOption(opt.score);
+                btn.className = "w-full text-left px-6 py-4 bg-[#222631] hover:bg-[#2c313f] text-gray-200 hover:text-white border border-gray-800 hover:border-gray-600 rounded-xl font-medium transition-all duration-150 cursor-pointer flex justify-between items-center group";
+                
+                btn.innerHTML = `
+                    <span>${option}</span>
+                    <span class="w-5 h-5 rounded-full border-2 border-gray-600 group-hover:border-[#BA0C2F] transition-colors flex items-center justify-center text-xs"></span>
+                `;
+                
+                btn.onclick = () => selectOption(option);
                 optionsContainer.appendChild(btn);
             });
         }
 
-        // --- 7. 보기 선택 및 스코어 누적 함수 ---
-        function selectOption(score) {
-            userAnswers[currentIdx] = score; // 해당 인덱스에 점수 저장
-            
-            if (currentIdx < questions.length - 1) {
-                currentIdx++;
-                renderQuestion();
+        // 선택지 클릭 이벤트 처리
+        function selectOption(selectedText) {
+            userResponses.push({
+                step: currentStep + 1,
+                selected: selectedText
+            });
+
+            if (currentStep < quizData.length - 1) {
+                currentStep++;
+                loadQuestion();
             } else {
                 submitFinalResults();
             }
         }
 
-        // --- 8. 이전 문제로 가기 (뒤로가기 핵심 기능) ---
-        function prevQuestion() {
-            if (currentIdx > 0) {
-                currentIdx--;
-                renderQuestion();
-            } else {
-                // 1번 문항에서 뒤로가기를 누를 경우 인트로(랜딩) 페이지로 복귀
-                document.getElementById('quiz-page').classList.add('hidden');
-                document.getElementById('intro-page').classList.remove('hidden');
-            }
-        }
-
-        // --- 9. 결과 제출 및 Supabase 데이터 적재 ---
+        // 수파베이스최종 데이터 적재 및 처리
         async function submitFinalResults() {
-            // 총점 연산
-            const totalScore = userAnswers.reduce((acc, curr) => acc + curr, 0);
-            const scoreString = `${totalScore} / ${questions.length}`;
-            
-            document.getElementById('score-text').innerText = scoreString;
-            
-            // 화면 UI 결과창으로 전환
-            document.getElementById('quiz-page').classList.add('hidden');
-            document.getElementById('result-page').classList.remove('hidden');
-            
-            // 수파베이스 데이터베이스 'test_results' 테이블 인서트 트랜잭션 수행
             try {
-                const { data, error } = await _supabase
-                    .from('test_results')
-                    .insert([
-                        { 
-                            result_type: scoreString,
-                            created_at: new Date().toISOString()
-                        }
-                    ]);
-                if (error) throw error;
-                console.log("데이터가 성공적으로 수파베이스에 적재되었습니다.", data);
-            } catch (err) {
-                console.error("데이터 적재 실패:", err.message);
-            }
-        }
+                // 수파베이스 테이블 구조 명세에 맞춰 JSON 객체 빌드
+                const payload = {
+                    result_type: `Q1:${userResponses[0].selected} | Q2:${userResponses[1].selected} | Q3:${userResponses[2].selected} | Q4:${userResponses[3].selected} | Q5:${userResponses[4].selected}`,
+                    created_at: new Date().toISOString()
+                };
 
-        // --- 10. 처음으로 돌아가기 (초기화) ---
-        function resetQuiz() {
-            document.getElementById('result-page').classList.add('hidden');
-            document.getElementById('intro-page').classList.remove('hidden');
-            currentIdx = 0;
-            userAnswers = [];
+                const { data, error } = await supabase
+                    .from('test_results')
+                    .insert([payload]);
+
+                if (error) throw error;
+
+                // 성공 시 완료 화면 노출
+                quizPage.classList.add('hidden');
+                resultPage.classList.remove('hidden');
+
+            } catch (err) {
+                console.error("데이터 적재 실패:", err);
+                alert("네트워크 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+            }
         }
     </script>
 </body>
